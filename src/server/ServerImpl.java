@@ -65,13 +65,14 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 			throws NotBoundException, MalformedURLException, RemoteException {
 		readyTaskQueue = new LinkedBlockingQueue<>();
 		clientProxies = Collections.synchronizedMap(new HashMap<>());
-		Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-				"Server started.");
+
 		String url = "rmi://" + universeDomainName + ":" + Universe.PORT + "/"
 				+ Universe.SERVICE_NAME;
 		Universe universe;
 		universe = (Universe) Naming.lookup(url);
 		universe.register(this);
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO,
+				"Server {0} started.", ID);
 	}
 
 	public static void main(final String[] args) {
@@ -81,12 +82,10 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		try {
 			server = new ServerImpl(universeDomainName);
 		} catch (RemoteException e) {
-			e.printStackTrace();
 			System.out.println("Cannot regiseter to the Universe!");
 			return;
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Universe domain name!");
-			e.printStackTrace();
 			return;
 		}
 		try {
@@ -94,7 +93,6 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 					Server.SERVICE_NAME, server);
 		} catch (RemoteException e) {
 			System.out.println("Fail to bind Server!");
-			e.printStackTrace();
 			return;
 		}
 
@@ -140,7 +138,8 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		try {
 			readyTaskQueue.put(task);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out
+					.println("Interrupted when adding task to ready task queue!");
 		}
 	}
 
@@ -156,7 +155,8 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		try {
 			return readyTaskQueue.take();
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out
+					.println("Server: Interrupted when taking task from Ready Task Queue");
 		}
 		return null;
 	}
@@ -164,6 +164,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 	/**
 	 * Dispatch the Result to corresponding Client Proxy. Call from Server Proxy
 	 * in Universe. If the Client is down, discard the result.
+	 * F:1:S1:123:U1:P1:23:C1:W323
 	 * 
 	 * @param result
 	 *            Result to be dispatched.
@@ -369,7 +370,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 			try {
 				resultQueue.put(result);
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				System.out.println("Interrupted when taking result!");
 			}
 		}
 
@@ -395,6 +396,8 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		 * @return Task ID
 		 */
 		private String submitTask(Task<?> task) {
+			// Task ID Reset
+			// !:F:1:S0:1
 			String taskID = this.name + ":" + makeTaskID() + ":S" + server.ID
 					+ ":" + server.makeTaskID();
 			task.setID("!:" + taskID);

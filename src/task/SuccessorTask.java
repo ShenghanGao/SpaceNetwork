@@ -16,6 +16,11 @@ public abstract class SuccessorTask<T> extends Task<T> {
 	private int missingArgNum;
 
 	/**
+	 * Origin Task ID
+	 */
+	private String originID;
+
+	/**
 	 * Constructor of successor task. Call from inside.
 	 * 
 	 * @param arg
@@ -31,6 +36,7 @@ public abstract class SuccessorTask<T> extends Task<T> {
 			int targetSuccessorTaskArgIndex) {
 		super(arg);
 		this.missingArgNum = argNum;
+		this.originID = null;
 		this.setTargetID(targetSuccessorTaskId);
 		this.setTargetSuccessorTaskArgIndex(targetSuccessorTaskArgIndex);
 	}
@@ -57,8 +63,8 @@ public abstract class SuccessorTask<T> extends Task<T> {
 	 *            Argument value.
 	 */
 	synchronized public void setArgAt(int Index, T value) {
-		if(arg.get(Index) == null) {
-			((List<T>)arg).set(Index, value);
+		if (arg.get(Index) == null) {
+			((List<T>) arg).set(Index, value);
 			missingArgNum--;
 		}
 	}
@@ -78,9 +84,27 @@ public abstract class SuccessorTask<T> extends Task<T> {
 	 * @param targetSuccessorTaskArgIndex
 	 *            the targetSuccessorTaskArgIndex to set
 	 */
-	public void setTargetSuccessorTaskArgIndex(
-			int targetSuccessorTaskArgIndex) {
+	public void setTargetSuccessorTaskArgIndex(int targetSuccessorTaskArgIndex) {
 		this.targetSuccessorTaskArgIndex = targetSuccessorTaskArgIndex;
+	}
+
+	/**
+	 * Get Origin Task ID
+	 * 
+	 * @return Origin Task ID
+	 */
+	public String getOriginID() {
+		return originID;
+	}
+
+	/**
+	 * Set Origin Task ID
+	 * 
+	 * @param originID
+	 *            Origin Task ID
+	 */
+	public void setOrginID(String originID) {
+		this.originID = originID;
 	}
 
 }

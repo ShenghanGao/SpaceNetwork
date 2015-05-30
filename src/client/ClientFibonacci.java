@@ -63,7 +63,7 @@ public class ClientFibonacci extends Client<Integer, Integer> {
 		}
 		try {
 			if (server.register(client.getName(), null)) {
-				int N = 25;
+				int N = 20;
 				for (int i = 0; i < 1; i++) {
 					Task<Integer> fibTask = client.makeTask(N);
 					String taskID = server.submit(fibTask, client.getName());

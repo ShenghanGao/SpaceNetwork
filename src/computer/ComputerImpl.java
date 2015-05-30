@@ -1,6 +1,8 @@
 package computer;
 
+import java.net.MalformedURLException;
 import java.rmi.Naming;
+import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
@@ -9,8 +11,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import api.Computer;
 import api.Result;
@@ -68,8 +68,11 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	 * 
 	 * @throws RemoteException
 	 *             Failed to connect to computer.
+	 * @throws NotBoundException
+	 * @throws MalformedURLException
 	 */
-	public ComputerImpl() throws RemoteException {
+	public ComputerImpl(String spaceDomainName) throws RemoteException,
+			MalformedURLException, NotBoundException {
 		resultQueue = new LinkedBlockingQueue<>();
 		readyTaskQueue = new LinkedBlockingQueue<>();
 		if (Config.ComputerMultithreadFlag) {
@@ -83,18 +86,31 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 			workers[i] = new Worker();
 			workers[i].start();
 		}
-		Logger.getLogger(ComputerImpl.class.getName()).log(Level.INFO,
-				"Computer: started with " + workerNum + " workers.");
-	}
-
-	public static void main(String[] args) throws Exception {
-		System.setSecurityManager(new SecurityManager());
-		final String domainName = args.length == 0 ? "localhost" : args[0];
-		final String url = "rmi://" + domainName + ":" + Space.PORT + "/"
+		final String url = "rmi://" + spaceDomainName + ":" + Space.PORT + "/"
 				+ Space.SERVICE_NAME;
 		space = (Space) Naming.lookup(url);
-		ComputerImpl computer = new ComputerImpl();
-		space.register(computer);
+		space.register(this);
+		Logger.getLogger(ComputerImpl.class.getName())
+				.log(Level.INFO,
+						"Computer {0} started with " + workerNum + " workers.",
+						this.ID);
+	}
+
+	public static void main(String[] args) {
+		System.setSecurityManager(new SecurityManager());
+		final String spaceDomainName = args.length == 0 ? "localhost" : args[0];
+
+		ComputerImpl computer;
+		try {
+			computer = new ComputerImpl(spaceDomainName);
+		} catch (MalformedURLException | NotBoundException e) {
+			System.out.println("Bad Space domain name!");
+			return;
+		} catch (RemoteException e) {
+			System.out.println("Cannot regiseter to the Space!");
+			return;
+		}
+
 		// Main thread waiting for Key Enter to terminate.
 		try {
 			System.in.read();
@@ -102,7 +118,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 
 		}
 		Logger.getLogger(ComputerImpl.class.getName()).log(Level.INFO,
-				"Computer: " + computer.ID + " exited.");
+				"Computer " + computer.ID + " exited.");
 		System.exit(-1);
 	}
 
@@ -236,17 +252,8 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	}
 
 	/**
-	 * Generate a list of Task ID.
-	 * <p>
-	 * F:1:0:S1:U1:0:P1:0:C1:W551:#
-	 * </p>
-	 * <p>
-	 * root !:ClientName:Num:Server:S:Universe:Space:P:Computer:C:W
-	 * </p>
-	 * <p>
-	 * ClientName:Num:Server:S:Universe:Space:P:Computer:C:W
-	 * </p>
-	 * ClientName:Num:S1:Num:U1:P1:Num:C1:Num
+	 * Generate a list of Task ID. ClientName:Num:S:Num:U:P:Num:C:W
+	 * F:1:S0:1:U1:P1:1:C1:W1
 	 * 
 	 * @param oldID
 	 *            Old ID
@@ -256,11 +263,15 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	 */
 	private String[] makeTaskIDList(String oldID, int num) {
 		String[] IDs = new String[num];
-		String taskids[] = oldID.split(":");
-		taskids[7] = Integer.toString(this.ID);
+		/*
+		 * int index = oldID.indexOf(":W"); String prefix = oldID.substring(0,
+		 * index + 2); for (int i = 0; i < num; i++) { String taskid = prefix +
+		 * makeTaskID(); IDs[i] = taskid; } return IDs;
+		 */
+		int index = oldID.indexOf(":C");
+		String prefix = oldID.substring(0, index + 2);
 		for (int i = 0; i < num; i++) {
-			taskids[9] = "W" + makeTaskID();
-			String taskid = Stream.of(taskids).collect(Collectors.joining(":"));
+			String taskid = prefix + ID + ":W" + makeTaskID();
 			IDs[i] = taskid;
 		}
 		return IDs;
@@ -277,14 +288,15 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		public void run() {
 			while (true) {
 				// Debug Only
-
 				/*
-				 * try { Thread.sleep(5000); } catch (InterruptedException e) {
+				 * try { Thread.sleep(1000); } catch (InterruptedException e) {
 				 * e.printStackTrace(); }
 				 */
-
 				Task<?> task = getReadyTask();
-				if (!task.getID().contains(":W")) {
+				// Task ID Reset
+				// !:F:1:S0:1:U1:P1:1:C1:1:W1
+				// F:1:S0:1:U1:P0:1:C1:1:W1
+				if (!task.getID().contains(":W")) { // only for the virgin
 					task.setID(task.getID() + ":W" + makeTaskID());
 				}
 				if (Config.DEBUG) {
@@ -329,25 +341,23 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 					System.out.println(result.getID());
 				}
 			}
-
 		}
 	}
 
-	/*
+	/**
 	 * Execute the task and generate the result. Assign every subtask with an
-	 * task ID.
+	 * task ID. Root !:F:1:S0:1:U1:P1:1:C1:1:W1 Result !:F:1:S0:1:U1:P1:1:C1:1
+	 * STask F:1:S0:1:U1:P1:1:C1:1:W1
+	 * 
+	 * NormalT F:1:S0:1:U1:P1:1:C1:1:W2 NormalR F:1:S0:1:U1:P1:1:C1:1:W2 STask
+	 * F:1:S0:1:U1:P1:1:C1:1:W1
 	 */
 	private <T> Result execute(Task<T> task) {
 		final Result result = task.execute();
 		if (result.getID().charAt(0) == '!') {
-			String resultID[] = result.getID().split(":");
-			StringBuffer resultid = new StringBuffer();
-			for (int i = 0; i <= 9; i++) {
-				resultid.append(resultID[i]);
-				resultid.append(":");
-			}
-			resultid.deleteCharAt(resultid.length() - 1);
-			result.setID(resultid.toString());
+			int index = result.getID().indexOf(":W");
+			String resultid = result.getID().substring(0, index);
+			result.setID(resultid);
 			String taskid = task.getID().substring(2);
 			task.setID(taskid);
 		}

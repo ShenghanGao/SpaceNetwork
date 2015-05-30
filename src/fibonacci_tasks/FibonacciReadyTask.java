@@ -18,7 +18,6 @@ import task.ReadyTask;
 public class FibonacciReadyTask extends ReadyTask<Integer> {
 	private static final long serialVersionUID = 4457744042261357273L;
 
-
 	/**
 	 * Constructor of Fibonacci ready task. Call from inside.
 	 * 
@@ -83,7 +82,7 @@ public class FibonacciReadyTask extends ReadyTask<Integer> {
 					this.getTargetID(), this.getTargetSuccessorTaskArgIndex(),
 					this.isCoarse(), taskStartTime, taskEndTime);
 		} else {
-	
+
 			List<Task<Integer>> subtasks = new ArrayList<Task<Integer>>();
 			// Generate successor task.
 			List<Integer> arg = new ArrayList<Integer>();
@@ -93,10 +92,13 @@ public class FibonacciReadyTask extends ReadyTask<Integer> {
 			FibonacciSuccessorTask successorTask = new FibonacciSuccessorTask(
 					arg, FibonacciTaskConfig.argNum, this.getTargetID(),
 					this.getTargetSuccessorTaskArgIndex());
-			successorTask.setLayer(getLayer());
+			successorTask.setLayer(getLayer() + 1);
 			successorTask.setSpaceRunnable(true);
+			if (this.isCoarse() == true && successorTask.isCoarse() == false) {
+				successorTask.setOrginID(this.getID());
+			}
 			subtasks.add(successorTask);
-			
+
 			// Generate child ready task.
 			Integer n = ((ArrayList<Integer>) getArg()).get(0);
 			for (int i = 0; i < FibonacciTaskConfig.argNum; i++) {
@@ -108,9 +110,9 @@ public class FibonacciReadyTask extends ReadyTask<Integer> {
 				subtask.setLayer(getLayer() + 1);
 				subtasks.add(subtask);
 			}
-			
+
 			long taskEndTime = System.nanoTime();
-			return new TaskResult<Integer>(this.getID(), subtasks, isCoarse(),
+			return new TaskResult<Integer>(this.getID(), subtasks, successorTask.isCoarse(),
 					taskStartTime, taskEndTime);
 		}
 	}

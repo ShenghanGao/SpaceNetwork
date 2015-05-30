@@ -67,9 +67,13 @@ public class FibonacciSuccessorTask extends SuccessorTask<Integer> {
 			sum += i;
 		}
 		long taskEndTime = System.nanoTime();
-		return new ValueResult<Integer>(this.getID(), sum, this.getTargetID(),
-				this.getTargetSuccessorTaskArgIndex(), isCoarse(),
-				taskStartTime, taskEndTime);
+		ValueResult<Integer> result = new ValueResult<Integer>(this.getID(),
+				sum, this.getTargetID(), this.getTargetSuccessorTaskArgIndex(),
+				isCoarse(), taskStartTime, taskEndTime);
+		if (this.getOriginID() != null) {
+			result.setOrginTaskID(getOriginID());
+		}
+		return result;
 	}
 
 }

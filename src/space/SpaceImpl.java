@@ -14,6 +14,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import api.Computer;
 import api.Result;
@@ -83,28 +85,25 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		successorTaskMap = Collections.synchronizedMap(new HashMap<>());
 		resultQueue = new LinkedBlockingQueue<>();
 		computerProxies = Collections.synchronizedMap(new HashMap<>());
-		Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-				"Space started.");
 		String url = "rmi://" + universeDomainName + ":" + Universe.PORT + "/"
 				+ Universe.SERVICE_NAME;
 		Universe universe;
 		universe = (Universe) Naming.lookup(url);
 		universe.register(this);
+		Logger.getLogger(this.getClass().getName()).log(Level.INFO,
+				"Space {0} started.", ID);
 	}
 
 	public static void main(final String[] args) {
 		String universeDomainName = args.length == 0 ? "localhost" : args[0];
 		System.setSecurityManager(new SecurityManager());
-
 		try {
 			space = new SpaceImpl(universeDomainName);
 		} catch (RemoteException e) {
-			e.printStackTrace();
 			System.out.println("Cannot regiseter to the Universe!");
 			return;
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Universe domain name!");
-			e.printStackTrace();
 			return;
 		}
 
@@ -113,7 +112,6 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 					Space.SERVICE_NAME, space);
 		} catch (RemoteException e) {
 			System.out.println("Fail to bind Server!");
-			e.printStackTrace();
 			return;
 		}
 
@@ -167,7 +165,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		try {
 			readyTaskQueue.put(task);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out
+					.println("Interrupted when adding task to ready task queue!");
 		}
 	}
 
@@ -177,12 +176,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	 * @return Task.
 	 */
 	public Task<?> getReadyTask() {
-		try {
-			return readyTaskQueue.take();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return readyTaskQueue.poll();
 	}
 
 	/**
@@ -284,19 +278,32 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		computerProxies.remove(computerProxy.ID);
 		Result result = null;
 		while ((result = computerProxy.intermediateResultQueue.poll()) != null) {
-			result.process(space, computerProxy.runningTaskMap,
-					computerProxy.intermediateResultQueue);
-			computerProxy.runningTaskMap.remove(result.getID());
+			if (result.isCoarse()) {
+				space.addResult(result);
+				computerProxy.runningTaskMap.remove(result.getID());
+			} else {
+				if (!result.process(space, computerProxy.runningTaskMap,
+						computerProxy.intermediateResultQueue)) {
+					space.addResult(result);
+				}
+				computerProxy.runningTaskMap.remove(result.getID());
+			}
 			if (Config.STATUSOUTPUT || Config.DEBUG) {
 				System.out.println("Unregister Result: " + result.getID() + "!"
 						+ ((ValueResult<?>) result).getTargetTaskID());
 			}
 		}
-		if (!computerProxy.runningTaskMap.isEmpty()) {
+	/*	// Unregister Task ID Reset
+		// !:F:1:S0:1:U1:P0:1:C1:1
+		// !:F:1:S0:1:U1:P0:1
+		//   F:1:S0:1:U1:P0:1:C1:1:W1
+		//	 F:1:S0:1:U1:P0:1
+*/		if (!computerProxy.runningTaskMap.isEmpty()) {
 			for (String taskId : computerProxy.runningTaskMap.keySet()) {
 				try {
-					readyTaskQueue
-							.put(computerProxy.runningTaskMap.get(taskId));
+					Task<?> task = computerProxy.runningTaskMap.get(taskId);
+					task.getID().substring(task.getID().indexOf(":C"));
+					readyTaskQueue.put(task);
 					if (Config.STATUSOUTPUT || Config.DEBUG) {
 						System.out.println("Save Task:" + taskId);
 					}
@@ -387,7 +394,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		 * @param comptuerid
 		 *            Computer ID
 		 */
-		ComputerProxy(Computer computer, int computerid) {
+		private ComputerProxy(Computer computer, int computerid) {
 			this.computer = computer;
 			this.ID = computerid;
 			this.runningTaskMap = Collections.synchronizedMap(new HashMap<>());
@@ -423,88 +430,99 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 			@Override
 			public void run() {
 				while (true) {
+					Result computerResult = null;
 					try {
 						// Get result from Computer Result Queue.
-						Result result = computer.getResult();
-						if (result != null) {
-							if (Config.DEBUG) {
-								System.out
-										.println("Space-Computer Proxy: Result "
-												+ result.getID()
-												+ "-"
-												+ result.isCoarse()
-												+ " is processing!");
-							}
-							synchronized (runningTaskMap) {
-								if (result.isCoarse()) {
-									// !:F:1:0:S1:U1:0:P1:0:C1
-									// !:F:1:0:S1:U1:0:P1
-									if (result.getID().charAt(0) == '!') {
-										String resultID[] = result.getID()
-												.split(":");
-										StringBuffer resultid = new StringBuffer();
-										for (int i = 0; i <= 7; i++) {
-											resultid.append(resultID[i]);
-											resultid.append(":");
-										}
-										resultid.deleteCharAt(resultid.length() - 1);
-										result.setID(resultid.toString());
+						computerResult = computer.getResult();
+					} catch (RemoteException ex) {
+						System.out.println("Receive Service: Computer " + ID
+								+ " is down!");
+						try {
+							sendService.join();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+						unregister(ComputerProxy.this);
+						return;
+					}
+					if (computerResult != null) {
+						if (Config.DEBUG) {
+							System.out.println("Space-Computer Proxy: Result "
+									+ computerResult.getID() + "-"
+									+ computerResult.isCoarse()
+									+ " is processing!");
+						}
+						synchronized (runningTaskMap) {
+							if (computerResult.isCoarse()) {
+								// Delete Track
+								// F:1:S0:1:U1:P1:1:C1:1:W2
+
+								runningTaskMap.remove(computerResult.getID());
+								if (computerResult.getID().charAt(0) == '!') {
+									int index = computerResult.getID().indexOf(
+											":C");
+									String resultid = computerResult.getID()
+											.substring(0, index);
+									computerResult.setID(resultid);
+								}
+								// Result ID Reset
+								// !:F:1:S0:1:U1:P1:1:C1:1
+								// !:F:1:S0:1:U1:P1:1
+								space.addResult(computerResult);
+								if (Config.DEBUG) {
+									System.out
+											.println("	Result "
+													+ computerResult.getID()
+													+ " is coarse, added to Space Result Queue!");
+								}
+							} else {
+								if (!computerResult
+										.process(space, runningTaskMap,
+												intermediateResultQueue)) {
+									runningTaskMap.remove(computerResult
+											.getID());
+									if (computerResult.getID().charAt(0) == '!') {
+										int index = computerResult.getID()
+												.indexOf(":C");
+										String resultid = computerResult
+												.getID().substring(0, index);
+										computerResult.setID(resultid);
 									}
-									space.addResult(result);
+									space.addResult(computerResult);
 									if (Config.DEBUG) {
 										System.out
 												.println("	Result "
-														+ result.getID()
-														+ " is coarse, added to Space Result Queue!");
+														+ computerResult
+																.getID()
+														+ " is not coarse but should be added to Space Result Queue!");
 									}
-									runningTaskMap.remove(result.getID());
 								} else {
-									if (!result.process(space, runningTaskMap,
-											intermediateResultQueue)) {
-										space.addResult(result);
-										if (Config.DEBUG) {
-											System.out
-													.println("	Result "
-															+ result.getID()
-															+ " is not coarse but should be added to Space Result Queue!");
-										}
-									} else {
-										if (Config.DEBUG) {
-											System.out
-													.println("	Result "
-															+ result.getID()
-															+ " is processed by Space!");
-										}
+									runningTaskMap.remove(computerResult
+											.getID());
+									if (Config.DEBUG) {
+										System.out.println("	Result "
+												+ computerResult.getID()
+												+ " is processed by Space!");
 									}
-									runningTaskMap.remove(result.getID());
 								}
 							}
 						}
-						// Get the result from Intermediate Result Queue.
-						result = intermediateResultQueue.poll();
-						if (result != null) {
-							synchronized (runningTaskMap) {
-								if (result.isCoarse()) {
-									space.addResult(result);
-									runningTaskMap.remove(result.getID());
-								} else {
-									if (!result.process(space, runningTaskMap,
-											intermediateResultQueue)) {
-										space.addResult(result);
-									}
-									runningTaskMap.remove(result.getID());
-								}
-							}
-						}
-					} catch (RemoteException ex) {
-						// If the Computer is down, unregister the Computer and
-						// save current working status.
-						System.out.println("Receive Service: Computer " + ID
-								+ " is down!");
+					}
+					// Get the result from Intermediate Result Queue.
+					Result spaceResult = intermediateResultQueue.poll();
+					if (spaceResult != null) {
 						synchronized (runningTaskMap) {
-							unregister(ComputerProxy.this);
+							if (spaceResult.isCoarse()) {
+								space.addResult(spaceResult);
+								runningTaskMap.remove(spaceResult.getID());
+							} else {
+								if (!spaceResult.process(space, runningTaskMap,
+										intermediateResultQueue)) {
+									space.addResult(spaceResult);
+								}
+								runningTaskMap.remove(spaceResult.getID());
+							}
 						}
-						return;
 					}
 				}
 			}
@@ -525,8 +543,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 							try {
 								Thread.sleep(5);
 							} catch (InterruptedException e) {
-								e.printStackTrace();
-								return;
+								break;
 							}
 							continue;
 						}
@@ -536,9 +553,27 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 						return;
 					}
 					task = space.getReadyTask();
+					if (task == null) {
+						continue;
+					}
+					// Task ID Reset
+					// Computer Task Track
+					// !:F:1:S0:1:U1:P1:1
+					// !:F:1:S0:1:U1:P1:1:C1:1
+					//   F:1:S0:1:U1:P0:1:C2:3:W1
+					//   F:1:S0:1:U1:P0:1:C1:1:W1
+					// F:1:S0:1:U1:P0:1:C1:W1
 					if (!task.getID().contains(":C")) {
-						task.setID(task.getID() + ":C" + ID + ":"
-								+ makeTaskID());
+					//	task.setID(task.getID() + ":C" + ID + ":"
+						//		+ makeTaskID());
+						task.setID(task.getID() + ":C" + ID);
+					} else {
+		/*				String[] taskids = task.getID().split(":");
+						taskids[7] = "C" + ID;
+						taskids[8] = Integer.toString(makeTaskID());
+						String taskid = Stream.of(taskids).collect(
+								Collectors.joining(":"));
+						task.setID(taskid);*/
 					}
 					synchronized (runningTaskMap) {
 						try {
@@ -563,7 +598,10 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 						System.out.println(task.getID());
 					}
 				}
+				System.out
+						.println("Send Service: Computer " + ID + " is down!");
 			}
+
 		}
 
 	}

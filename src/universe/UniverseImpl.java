@@ -17,7 +17,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import result.ValueResult;
 import api.Result;
 import api.Server;
 import api.Space;
@@ -220,14 +223,14 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 
 	/**
 	 * Dispatch the Result to corresponding Server Proxy. If the Server is down,
-	 * discard the result.
+	 * discard the result. F:1:S1:123:U1:P1:23:C1:W323
 	 * 
 	 * @param result
 	 *            Result to be dispatched.
 	 */
 	public void dispatchResult(final Result result) {
 		String resultID[] = result.getID().split(":");
-		int serverID = Integer.parseInt(resultID[2]);
+		int serverID = Integer.parseInt(resultID[2].substring(1));
 		synchronized (serverProxies) {
 			if (serverProxies.containsKey(serverID)) {
 				serverProxies.get(serverID).addResult(result);
@@ -260,11 +263,12 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		serverProxies.put(serverProxy.ID, serverProxy);
 		serverProxy.start();
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO,
-				"Server {0} starts!", serverProxy.ID);
+				"Server {0} started!", serverProxy.ID);
 	}
 
 	/**
 	 * Unregister a Server. Remove submitted Tasks in the Ready Task Queue.
+	 * F:1:S0:2:U2:P0:2:C1:W177
 	 * 
 	 * @param serverProxy
 	 *            Server associated ServerProxy to be unregistered.
@@ -274,7 +278,7 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		synchronized (readyTaskQueue) {
 			for (Task<?> task : readyTaskQueue) {
 				String taskID[] = task.getID().split(":");
-				if (taskID[2].equals(serverProxy.ID)) {
+				if (taskID[2].substring(1).equals(serverProxy.ID)) {
 					readyTaskQueue.remove(task);
 				}
 			}
@@ -316,23 +320,10 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 			synchronized (spaceProxy.runningTaskMap) {
 				if (!spaceProxy.runningTaskMap.isEmpty()) {
 					for (String taskID : spaceProxy.runningTaskMap.keySet()) {
-						try {
-							Task<?> task = spaceProxy.runningTaskMap
-									.get(taskID);
-							int index = task.getID().indexOf(":P");
-							if (index != -1) {
-								task.setID(task.getID().substring(0, index));
-							}
-							readyTaskQueue.put(task);
-							if (Config.STATUSOUTPUT) {
-								System.out.println("Save Space Task:" + taskID);
-							}
-							if (Config.DEBUG) {
-								System.out.println("Save Space Task:" + taskID
-										+ "	" + task.getID());
-							}
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+						Task<?> task = spaceProxy.runningTaskMap.get(taskID);
+						addReadyTask(task);
+						if (Config.STATUSOUTPUT || Config.DEBUG) {
+							System.out.println("Save Space Task:" + taskID);
 						}
 					}
 				}
@@ -364,13 +355,19 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		private final SendService sendService;
 
 		/**
+		 * Remote Exception Flag
+		 */
+		private boolean isInterrupt;
+
+		/**
 		 * Receive Service
 		 */
 		private final ReceiveService receiveService;
 
-		public ServerProxy(Server server, int id) {
+		private ServerProxy(Server server, int id) {
 			this.server = server;
 			this.ID = id;
+			isInterrupt = false;
 			this.resultQueue = new LinkedBlockingQueue<>();
 			receiveService = new ReceiveService();
 			sendService = new SendService();
@@ -417,7 +414,7 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		private class ReceiveService extends Thread {
 			@Override
 			public void run() {
-				while (true) {
+				while (!isInterrupt) {
 					Result result = getResult();
 					try {
 						server.dispatchResult(result);
@@ -425,8 +422,8 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 						System.out.println("Receive Service: Server " + ID
 								+ " is Down!");
 						return;
-						// If the Server is down abnormally, should Clean the
-						// Server. Maybe in future. Discard the Result.
+						// Potential Problem here. Send Service tries to stop
+						// Receive Service
 					}
 				}
 			}
@@ -447,6 +444,7 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 					} catch (RemoteException e) {
 						System.out.println("Send Service: Server " + ID
 								+ " is Down!");
+						isInterrupt = true;
 						if (ServerProxy.this.receiveService.isAlive()) {
 							ServerProxy.this.receiveService.interrupt();
 						}
@@ -458,14 +456,9 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 						unregister(ServerProxy.this);
 						return;
 					}
-					// !:F:1:S0:1:U1
-					if (!task.getID().contains(":U")) {
-						task.setID(task.getID() + ":U" + makeTaskID());
-					} else {
-						String taskid[] = task.getID().split(":");
-						task.setID(task.getID().replace(":" + taskid[4],
-								":U" + makeTaskID()));
-					}
+					// Task ID Reset
+					// !F:1:S0:1:U1
+					task.setID(task.getID() + ":U" + makeTaskID());
 					synchronized (universe.readyTaskQueue) {
 						universe.addReadyTask(task);
 						if (Config.DEBUG) {
@@ -516,7 +509,7 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		 */
 		private final ReceiveService receiveService;
 
-		public SpaceProxy(Space space, int id) {
+		private SpaceProxy(Space space, int id) {
 			this.space = space;
 			this.ID = id;
 			this.isInterrupt = false;
@@ -561,6 +554,7 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 						unregister(SpaceProxy.this);
 						return;
 					}
+					// Result ID !:F:1:S0:1:U1:P1:1 same as Task ID
 					synchronized (universe.readyTaskQueue) {
 						synchronized (universe.successorTaskMap) {
 							synchronized (runningTaskMap) {
@@ -573,7 +567,18 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 													+ " is processing!");
 								}
 								result.process(universe, runningTaskMap);
-								runningTaskMap.remove(result.getID());
+								if (!result.isCoarse()) {
+									runningTaskMap
+											.remove(((ValueResult<?>) result)
+													.getOrginTaskID());
+									if (Config.DEBUG) {
+										System.out.println("Orgin Task ID"
+												+ ((ValueResult<?>) result)
+														.getOrginTaskID());
+									}
+								} else {
+									runningTaskMap.remove(result.getID());
+								}
 							}
 						}
 					}
@@ -601,9 +606,21 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 						if (task == null) {
 							continue;
 						}
+						// Task ID Reset
+						// Space Task Tracking
+						// !:F:1:S0:1:U1:P1:1
+						//   F:1:S0:1:U1:P0:1:C1:1:W1
+						//  F:1:S0:1:U1:P0:1
 						if (!task.getID().contains(":P")) {
 							task.setID(task.getID() + ":P" + ID + ":"
 									+ makeTaskID());
+						} else {
+			/*				String[] taskids = task.getID().split(":");
+							taskids[5] = "P" + ID;
+							taskids[6] = Integer.toString(makeTaskID());
+							String taskid = Stream.of(taskids).collect(
+									Collectors.joining(":"));
+							task.setID(taskid);*/
 						}
 						synchronized (runningTaskMap) {
 							try {

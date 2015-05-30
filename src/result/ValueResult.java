@@ -36,6 +36,11 @@ public class ValueResult<ValueType> extends Result {
 	private final ValueType value;
 
 	/**
+	 * Successor's Orgin Task ID.
+	 */
+	private String orginTaskID;
+
+	/**
 	 * Constructor of value result.
 	 * 
 	 * @param resultId
@@ -60,6 +65,7 @@ public class ValueResult<ValueType> extends Result {
 		this.value = value;
 		this.targetTaskId = targetTaskId;
 		this.targetArgIndex = targetArgIndex;
+		this.setOrginTaskID(null);
 	}
 
 	/**
@@ -101,6 +107,25 @@ public class ValueResult<ValueType> extends Result {
 		} else {
 			return false;
 		}
+	}
+	
+	/**
+	 * Get Successor's Orgin Task ID
+	 * 
+	 * @return the orginTaskID
+	 */
+	public String getOrginTaskID() {
+		return orginTaskID;
+	}
+
+	/**
+	 * Set Origin Task ID
+	 * 
+	 * @param orginTaskID
+	 *            the orginTaskID to set
+	 */
+	public void setOrginTaskID(String orginTaskID) {
+		this.orginTaskID = orginTaskID;
 	}
 
 	/**
@@ -196,8 +221,7 @@ public class ValueResult<ValueType> extends Result {
 		successortask.setArgAt(targetArgIndex, this.value);
 		if (Config.DEBUG) {
 			System.out.println("	Result: " + successortask.getID() + "-"
-					+ successortask.getLayer() + "-"
-					+ successortask.isCoarse()
+					+ successortask.getLayer() + "-" + successortask.isCoarse()
 					+ " value filled!");
 		}
 		if (successortask.isRunnable()) {
