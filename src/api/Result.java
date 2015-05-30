@@ -49,7 +49,7 @@ public abstract class Result implements Serializable {
 	/**
 	 * Coarse Flag.
 	 */
-	private boolean coarse;
+	private Boolean coarse;
 
 	/**
 	 * Constructor of Result.

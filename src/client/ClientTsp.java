@@ -82,6 +82,7 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 				client.add(client.getLabel(minTour.toArray(new Integer[0]),
 						CITIES));
 			}
+			server.unregister(client.getName());
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Server domain name!");
 		} catch (RemoteException e) {

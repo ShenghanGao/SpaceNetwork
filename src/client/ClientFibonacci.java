@@ -47,9 +47,24 @@ public class ClientFibonacci extends Client<Integer, Integer> {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) {
 		System.setSecurityManager(new SecurityManager());
-
-		String serverDomainName = args.length == 0 ? "localhost" : args[0];
-		ClientFibonacci client = new ClientFibonacci("F");
+		String serverDomainName = null;
+		String clientName = null;
+		int N = 0;
+		if (args.length == 1) {
+			serverDomainName = args[0];
+			clientName = "Fibonacci";
+			N = 10;
+		} else if(args.length == 3) {
+			serverDomainName = args[0];
+			clientName = args[1];
+			N = Integer.parseInt(args[2]); 
+		} else {
+			serverDomainName = "localhost";
+			clientName = "Fibonacci";
+			N = 10;
+		}
+		// Change the Client Interface to accept server name, client name, and N. 
+		ClientFibonacci client = new ClientFibonacci(clientName);
 		client.begin();
 		
 		Server server = null;
@@ -63,7 +78,7 @@ public class ClientFibonacci extends Client<Integer, Integer> {
 		}
 		try {
 			if (server.register(client.getName(), null)) {
-				int N = 20;
+				
 				for (int i = 0; i < 1; i++) {
 					Task<Integer> fibTask = client.makeTask(N);
 					String taskID = server.submit(fibTask, client.getName());
