@@ -1,0 +1,316 @@
+<project name="spacenetwork" default="welcome" basedir=".">
+<!-- Directory Path -->
+  <property name= "src.path"          location= "src"/>
+  <property name= "bin.path"          location= "bin"/>
+  <property name= "javadoc.path"      location= "documents/javadoc"/>
+  <property name= "policy.path"       location= "policy/policy"/>
+  <property name= "jar.path"          location= "jar"/>
+  
+  <property name= "api_src.path"          location= "${src.path}/api"/>
+  <property name= "client_src.path"       location= "${src.path}/client"/>
+  <property name= "computer_src.path"     location= "${src.path}/computer"/>
+  <property name= "task_src.path"         location= "${src.path}/task"/>
+  <property name= "fibonacci_tasks_src.path"    location= "${src.path}/fibonacci_tasks"/>
+  <property name= "tsp_tasks_src.path"    location= "${src.path}/tsp_tasks"/>
+  <property name= "result_src.path"       location= "${src.path}/result"/>
+  <property name= "space_src.path"        location= "${src.path}/space"/>
+  <property name= "config_src.path"       location= "${src.path}/config"/>
+  <property name= "universe_src.path"     location= "${src.path}/universe"/>
+  <property name= "server_src.path"     location= "${src.path}/server"/>
+  
+  <property name= "api_bin.path"          location= "${bin.path}/api"/>
+  <property name= "client_bin.path"       location= "${bin.path}/client"/>
+  <property name= "computer_bin.path"     location= "${bin.path}/computer"/>
+  <property name= "task_bin.path"         location= "${bin.path}/task"/>
+  <property name= "fibonacci_tasks_bin.path"    location= "${bin.path}/fibonacci_tasks"/>
+  <property name= "tsp_tasks_bin.path"    location= "${bin.path}/tsp_tasks"/>
+  <property name= "result_bin.path"       location= "${bin.path}/result"/>
+  <property name= "space_bin.path"        location= "${bin.path}/space"/>
+  <property name= "config_bin.path"       location= "${bin.path}/config"/>
+  <property name= "universe_bin.path"     location= "${bin.path}/universe"/>
+  <property name= "server_bin.path"     location= "${bin.path}/server"/>
+  
+  <property name= "apiJar.path"           location= "${jar.path}/api.jar"/>
+  <property name= "clientJar.path"        location= "${jar.path}/client.jar"/>
+  <property name= "computerJar.path"      location= "${jar.path}/computer.jar"/>
+  <property name= "taskJar.path"    	  location= "${jar.path}/task.jar"/>
+  <property name= "fibonacciTaskJar.path"         location= "${jar.path}/fibonacci_tasks.jar"/>
+  <property name= "tspTaskJar.path"       location= "${jar.path}/tsp_tasks.jar"/>
+  <property name= "spaceJar.path"         location= "${jar.path}/space.jar"/>
+  <property name= "configJar.path"        location= "${jar.path}/config.jar"/>
+  <property name= "result.path"           location= "${jar.path}/result.jar"/>
+  <property name= "universeJar.path"      location= "${jar.path}/universe.jar"/>
+  <property name= "serverJar.path"        location= "${jar.path}/server.jar"/>
+   
+  <property name= "AUTHOR"              value= "AllMembers"/>
+  <property name= "VERSION"             value= "1.0"/>
+  
+  <property name= "SPACEADDR"           value= "localhost"/>
+  <property name= "UNIVERSEADDR"        value= "localhost"/>
+  <property name= "SERVERADDR"          value= "localhost"/>
+  
+  <target name="welcome" description="Basic Information">
+      <echo message="Author: ${AUTHOR}"/>
+      <echo message="VERSION: ${VERSION}"/>
+      <echo message="Host address for the server is ${SPACEADDR}"/>
+      <echo message="This is for building and running the HW2 project."/>
+      <echo message="Run Command:"/>
+      <echo message="1.  To build class directories:               ant build-dir"/>
+      <echo message="2.  To compile and jar all files:             ant compile"/>
+      <echo message="3.  To build the system(above two steps):     ant build"/>
+	  <echo message="4.  To run the Universe:                	   ant runUniverse"/>
+	  <echo message="5.  To run the Server:               		   ant runServer"/>
+      <echo message="6.  To run the Space:                 		   ant runSpace"/>
+      <echo message="7.  To run a computer(worker):                ant runComputer"/>
+      <echo message="8.  To run client Fibonacci:              	   ant runFibonacciClient/runF"/>
+      <echo message="9.  To run client EuclideanTsp:               ant runTspClient/runT"/>
+      <echo message="10.  To generate javadoc for tasks and api:    ant javadoc"/>
+      <echo message="11.  To delete all directories:                ant clean"/>      
+      <input message="Press return key to continue..."/>
+  </target> 
+  
+  <!-- Tasks -->  
+  <target name="build" description="build directory and compile" depends="build-dir, compile">
+      <echo message="Build completed!" />
+   </target>
+   
+  <target name="compile" description="build directory and compile" depends="compile-api, compile-computer, compile-space, compile-universe,compile-task, compile-server, compile-fibonaccitasks, compile-tsptasks, compile-client">
+      <echo message="compile completed!" />
+  </target>
+  
+  <target name="clean" description="delete directories">
+    <delete dir="${bin.path}"/>
+    <delete dir="${jar.path}"/>
+    <echo message="Clean completed!" />
+  </target>
+ 
+  <target name="javadoc" description="create javadocs">
+  	 <mkdir dir="${javadoc.path}"/>
+	<javadoc packagenames="fibonacci_tasks.*,tsp_tasks.*,task.*,api.*,result.*,client.*,computer.*,space.*,server.*,universe.*,config.*" sourcepath="${src.path}" destdir="${javadoc.path}" />
+  </target>
+  
+   <target name="runUniverse" description="start universe">   
+    <echo message="Start Universe!" />
+    <java classname="universe.UniverseImpl" fork="true">
+  	  <jvmarg value="-Djava.security.policy=${policy.path}"/>
+	  <classpath>
+		<fileset dir="${jar.path}" includes="universe.jar fibonacci_tasks.jar  result.jar tsp_tasks.jar"/>
+  	  </classpath>
+    </java>
+  </target>
+  
+  <target name="runServer" description="start Server">   
+    <echo message="Start Server!" />
+    <java classname="server.ServerImpl" fork="true">
+  	  <jvmarg value="-Djava.security.policy=${policy.path}"/>
+	  <classpath>
+		<fileset dir="${jar.path}" includes="server.jar fibonacci_tasks.jar result.jar tsp_tasks.jar"/>
+  	  </classpath>
+	    <arg value="${UNIVERSEADDR}"/>
+    </java>
+  </target>
+  
+  <target name="runSpace" description="start Space">   
+    <echo message="Start Space!" />
+    <java classname="space.SpaceImpl" fork="true">
+  	  <jvmarg value="-Djava.security.policy=${policy.path}"/>
+	  <classpath>
+		<fileset dir="${jar.path}" includes="space.jar fibonacci_tasks.jar  result.jar tsp_tasks.jar"/>
+  	  </classpath>
+	   <arg value="${UNIVERSEADDR}"/>
+    </java>
+  </target>
+  
+   <target name="runComputer" description="start computer">   
+    <echo message="Start Computer!" />
+    <java classname="computer.ComputerImpl" fork="true">
+  	  <jvmarg value="-Djava.security.policy=${policy.path}"/>
+	  <classpath>
+		<fileset dir="${jar.path}" includes="computer.jar fibonacci_tasks.jar tsp_tasks.jar task.jar result.jar space.jar"/>
+	  </classpath>
+	  <arg value="${SPACEADDR}"/>
+    </java>
+  </target>
+  
+  <target name="runF" description="start Fibonacci Client" depends="runFibonacciClient"/>
+  <target name="runFibonacciClient" description="start Fibonacci Client">   
+    <echo message="Start Fibonacci Client!" />
+    <java classname="client.ClientFibonacci" fork="true">
+  	  <jvmarg value="-Djava.security.policy=${policy.path}"/>
+	  <classpath>
+  	    <pathelement location="${clientJar.path}"/>
+        <pathelement location="${fibonacciTaskJar.path}"/>
+        <pathelement location="${serverJar.path}"/>
+        <pathelement location="${apiJar.path}"/>
+		 <pathelement location="${resultJar.path}"/>
+  	  </classpath>
+	  	  <arg value="${SERVERADDR}"/>
+    </java>
+  </target>
+  
+   <target name="runT" description="start TSP Client" depends="runTspClient"/>
+   <target name="runTspClient" description="start Tsp Client">   
+    <echo message="Start Tsp Client!" />
+    <java classname="client.ClientTsp" fork="true">
+  	  <jvmarg value="-Djava.security.policy=${policy.path}"/>
+	  <classpath>
+  	    <pathelement location="${clientJar.path}"/>
+        <pathelement location="${tspTaskJar.path}"/>
+        <pathelement location="${serverJar.path}"/>
+        <pathelement location="${apiJar.path}"/>
+		<pathelement location="${resultJar.path}"/>
+  	  </classpath>
+	  <arg value="${SERVERADDR}"/>
+    </java>
+  </target>
+  
+
+  <!-- Build Directory -->  
+  <target name="build-dir" description="build directory">
+	  <mkdir dir="${bin.path}"/>
+  </target>
+  
+  <!-- Compile -->  
+  <target name="compile-api" description="compile the api and all needed code"> 
+	 <javac destdir="${bin.path}" includeantruntime="false">
+         <src path = "${api_src.path}"/>
+         <include name="Result.java"/>
+         <include name="Task.java"/>
+		 <include name="Space.java"/>
+		 <include name="Universe.java"/>
+		 <include name="Server.java"/>
+		 <include name="Client.java"/>
+		 <src path = "${task_src.path}"/>
+         <include name="ReadyTask.java"/>
+		 <include name="SuccessorTask.java"/>
+		 <src path = "${result_src.path}"/>
+         <include name="ValueResult.java"/>
+         <include name="TaskResult.java"/>
+		 <src path = "${config_src.path}"/>
+         <include name="Config.java"/>
+		 <src path = "${server_src.path}"/>
+         <include name="ServerImpl.java"/>
+   		 <src path = "${space_src.path}"/>
+         <include name="SpaceImpl.java"/>
+		 <src path = "${computer_src.path}"/>
+         <include name="Computer.java"/>
+		 <src path = "${universe_src.path}"/>
+         <include name="UniverseImpl.java"/>
+     </javac>
+	 
+     <jar destfile="${apiJar.path}">
+         <fileset dir="${bin.path}" includes="api/*.class"/>
+         <manifest>
+             <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+             <attribute name="Implementation-Version" value="${VERSION}"/>
+         </manifest>
+     </jar>
+  </target>
+  
+  <target name="compile-task" description="compile the api and system code"> 
+	 <jar destfile="${taskJar.path}">
+       <fileset dir="${bin.path}" includes="task/*.class"/>
+         <manifest>
+             <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+             <attribute name="Implementation-Version" value="${VERSION}"/>
+         </manifest>
+     </jar>
+  </target>
+  
+  <target name="compile-result" description="compile the api and system code"> 
+	 <javac destdir="${bin.path}" includeantruntime="false">
+		<src path = "${computer_src.path}"/>
+        <include name="Computer.java"/>
+     </javac>
+	<jar destfile="${resultJar.path}">
+       <fileset dir="${bin.path}" includes="result/*.class"/>
+         <manifest>
+             <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+             <attribute name="Implementation-Version" value="${VERSION}"/>
+         </manifest>
+    </jar>
+  </target>
+  
+  <target name="compile-computer" description="compile the computer code">    
+     <javac srcdir="${computer_src.path}" destdir="${bin.path}" includeantruntime="false" />
+	 <jar destfile="${computerJar.path}"> 
+		<fileset dir="${bin.path}" includes="computer/*.class api/*.class result/*.class config/*.class"/>
+		<manifest>
+		   <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+		   <attribute name="Implementation-Version" value="${VERSION}"/>
+		   <attribute name="Main-Class" value="computer.ComputerImpl"/>
+		</manifest>
+     </jar>
+  </target>
+  
+  <target name="compile-space" description="compile the space code">    
+     <javac srcdir="${space_src.path}" destdir="${bin.path}" includeantruntime="false" />
+	 <jar destfile="${spaceJar.path}"> 
+		<fileset dir="${bin.path}" includes="space/*.class computer/*.class api/*.class result/*.class task/*.class"/>
+		<manifest>
+		   <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+		   <attribute name="Implementation-Version" value="${VERSION}"/>
+		   <attribute name="Main-Class" value="space.SpaceImpl"/>
+		</manifest>
+     </jar>
+  </target>
+  
+    <target name="compile-universe" description="compile the universe code">    
+     <javac srcdir="${universe_src.path}" destdir="${bin.path}" includeantruntime="false" />
+	 <jar destfile="${universeJar.path}"> 
+		<fileset dir="${bin.path}" includes="universe/*.class space/*.class api/*.class server/*.class result/*.class task/*.class"/>
+		<manifest>
+		   <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+		   <attribute name="Implementation-Version" value="${VERSION}"/>
+		   <attribute name="Main-Class" value="universe.UniverseImpl"/>
+		</manifest>
+     </jar>
+  </target>
+  
+  <target name="compile-server" description="compile the server code">    
+     <javac srcdir="${server_src.path}" destdir="${bin.path}" includeantruntime="false" />
+	 <jar destfile="${serverJar.path}"> 
+		<fileset dir="${bin.path}" includes="server/*.class universe/*.class api/*.class result/*.class task/*.class"/>
+		<manifest>
+		   <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+		   <attribute name="Implementation-Version" value="${VERSION}"/>
+		   <attribute name="Main-Class" value="server.ServerImpl"/>
+		</manifest>
+     </jar>
+  </target>
+  
+  <target name="compile-fibonaccitasks" description="compile the fibonacci tasks code">    
+     <javac srcdir="${fibonacci_tasks_src.path}" destdir="${bin.path}" includeantruntime="false" />	
+	 <jar destfile="${fibonacciTaskJar.path}"> 
+		<fileset dir="${bin.path}" includes="fibonacci_tasks/*.class"/>
+		<manifest>
+		   <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+		   <attribute name="Implementation-Version" value="${VERSION}"/>
+		</manifest>
+	</jar>
+  </target>
+  
+    <target name="compile-tsptasks" description="compile the tsp tasks code">    
+     <javac srcdir="${tsp_tasks_src.path}" destdir="${bin.path}" includeantruntime="false" />	
+	 <jar destfile="${tspTaskJar.path}"> 
+		<fileset dir="${bin.path}" includes="tsp_tasks/*.class"/>
+		<manifest>
+		   <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+		   <attribute name="Implementation-Version" value="${VERSION}"/>
+		</manifest>
+	</jar>
+  </target>
+  
+  <target name="compile-client" description="compile the client code">    
+     <javac srcdir="${client_src.path}" destdir="${bin.path}" includeantruntime="false" />
+	 <jar destfile="${clientJar.path}"> 
+		<fileset dir="${bin.path}" includes="client/*.class fibonacci_tasks/*.class tsp_tasks/*.class result/*.class api/*.class"/>
+		<manifest>
+		   <attribute name="Implementation-Vendor"  value="${AUTHOR}"/>
+		   <attribute name="Implementation-Version" value="${VERSION}"/>
+		</manifest>
+	</jar>
+  </target>
+  
+</project>
+  
