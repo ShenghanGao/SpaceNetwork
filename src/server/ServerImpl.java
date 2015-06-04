@@ -173,6 +173,8 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 	 */
 	@Override
 	public void dispatchResult(final Result result) throws RemoteException {
+		if (Config.DEBUG)
+			System.out.println("Server wants to dispatch Result " + result.getID() + " to clientProxies.");
 		String resultID[] = result.getID().split(":");
 		String clientID = resultID[0];
 		if (clientProxies.containsKey(clientID)) {

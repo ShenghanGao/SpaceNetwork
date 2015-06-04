@@ -229,6 +229,8 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 	 *            Result to be dispatched.
 	 */
 	public void dispatchResult(final Result result) {
+		if (Config.DEBUG)
+			System.out.println("Universe wants to dispatch Result " + result.getID() + " to serverProxies.");
 		String resultID[] = result.getID().split(":");
 		int serverID = Integer.parseInt(resultID[2].substring(1));
 		synchronized (serverProxies) {

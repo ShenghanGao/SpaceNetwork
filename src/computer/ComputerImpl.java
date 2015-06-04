@@ -354,14 +354,17 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	 */
 	private <T> Result execute(Task<T> task) {
 		final Result result = task.execute();
+		final int resultType = result.getType();
 		if (result.getID().charAt(0) == '!') {
 			int index = result.getID().indexOf(":W");
-			String resultid = result.getID().substring(0, index);
+			String resultid = (resultType == Result.VALUERESULT)?
+					result.getID().substring(2, index):
+					result.getID().substring(0, index);
 			result.setID(resultid);
 			String taskid = task.getID().substring(2);
 			task.setID(taskid);
 		}
-		if (result.getType() == Result.VALUERESULT) {
+		if (resultType == Result.VALUERESULT) {
 			return result;
 		} else {
 			// If the result is Task Result, assign subtasks with Task ID.

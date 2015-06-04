@@ -35,7 +35,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	private static final long serialVersionUID = 8482035337875894981L;
 
 	/**
-	 * Space itslef. One Space in this JVM.
+	 * Space itself. One Space in this JVM.
 	 */
 	private static SpaceImpl space;
 

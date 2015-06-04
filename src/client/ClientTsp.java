@@ -57,12 +57,44 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 		System.setSecurityManager(new SecurityManager());
 
 		String serverDomainName = args.length == 0 ? "localhost" : args[0];
-		ClientTsp client = new ClientTsp("ClientTSP");
+		// TODO: temporary solution
+		//ClientTsp client = new ClientTsp("ClientTSP");
+		ClientTsp client = new ClientTsp("TSP");
 		client.begin();
 
-		double[][] CITIES = { { 1, 1 }, { 8, 1 }, { 8, 8 }, { 1, 8 }, { 2, 2 },
-				{ 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 }, { 6, 3 }, { 6, 6 },
-				{ 3, 6 } };
+//		double[][] CITIES = {
+//	        { 6, 3 },
+//	        { 2, 2 },
+//	        { 5, 8 },
+//	        { 1, 5 },
+//	        { 1, 6 },
+//	        { 2, 7 },
+//	        { 2, 8 },
+//	        { 6, 5 },
+//	        { 1, 3 },
+//	        { 6, 6 }
+//	    };
+		
+		double[][] CITIES = 
+			{
+				{ 1, 1 },
+				{ 8, 1 },
+				{ 8, 8 },
+				{ 1, 8 },
+				{ 2, 2 },
+				{ 7, 2 },
+				{ 7, 7 },
+				{ 2, 7 },
+				{ 3, 3 },
+				{ 6, 3 },
+//				{ 6, 6 },
+				{ 3, 6 },
+				{ 4, 4 },
+//				{ 5, 4 },
+//				{ 5, 5 },
+				{ 4, 5 }
+			};
+		
 		Task<TspData> tspTask = client.makeTask(CITIES);
 		try {
 			Server server = client.findServer(serverDomainName);
