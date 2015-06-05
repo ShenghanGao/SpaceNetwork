@@ -111,7 +111,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 			LocateRegistry.createRegistry(Space.PORT).rebind(
 					Space.SERVICE_NAME, space);
 		} catch (RemoteException e) {
-			System.out.println("Fail to bind Server!");
+			System.out.println("Fail to bind Server!\n");
 			return;
 		}
 

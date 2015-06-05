@@ -25,7 +25,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 	private static final long serialVersionUID = -7458792337176706359L;
 
 	/**
-	 * Server itslef. One Server in this JVM.
+	 * Server itself. One Server in this JVM.
 	 */
 	private static ServerImpl server;
 
@@ -82,7 +82,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		try {
 			server = new ServerImpl(universeDomainName);
 		} catch (RemoteException e) {
-			System.out.println("Cannot regiseter to the Universe!");
+			System.out.println("Cannot register to the Universe!");
 			return;
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Universe domain name!");
@@ -193,8 +193,9 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 	@Override
 	public boolean register(final String clientName, final String duration)
 			throws RemoteException {
-		if (clientName == null || clientName.charAt(0) == '!'
-				|| clientName.charAt(0) == '$'
+		if (clientName == null || clientName.contains("!")
+				|| clientName.contains("$")
+				|| clientName.contains(":")
 				|| clientProxies.containsKey(clientName)) {
 			System.out.println("Client Name is invalid!");
 			return false;

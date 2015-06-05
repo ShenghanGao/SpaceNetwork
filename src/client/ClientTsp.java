@@ -57,9 +57,7 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 		System.setSecurityManager(new SecurityManager());
 
 		String serverDomainName = args.length == 0 ? "localhost" : args[0];
-		// TODO: temporary solution
-		//ClientTsp client = new ClientTsp("ClientTSP");
-		ClientTsp client = new ClientTsp("TSP");
+		ClientTsp client = new ClientTsp("ClientTSP");
 		client.begin();
 
 //		double[][] CITIES = {
@@ -78,18 +76,18 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 		double[][] CITIES = 
 			{
 				{ 1, 1 },
-				{ 8, 1 },
-				{ 8, 8 },
-				{ 1, 8 },
-				{ 2, 2 },
-				{ 7, 2 },
-				{ 7, 7 },
-				{ 2, 7 },
-				{ 3, 3 },
-				{ 6, 3 },
+//				{ 8, 1 },
+//				{ 8, 8 },
+//				{ 1, 8 },
+//				{ 2, 2 },
+//				{ 7, 2 },
+//				{ 7, 7 },
+//				{ 2, 7 },
+//				{ 3, 3 },
+//				{ 6, 3 },
 //				{ 6, 6 },
 				{ 3, 6 },
-				{ 4, 4 },
+//				{ 4, 4 },
 //				{ 5, 4 },
 //				{ 5, 5 },
 				{ 4, 5 }
