@@ -132,7 +132,7 @@ public class ValueResult<ValueType> extends Result {
 	 * Process the result. Call from Space.
 	 * 
 	 * @param space
-	 *            The Space implemetation in which the result is to be
+	 *            The Space implementation in which the result is to be
 	 *            processed.
 	 * @param runningTaskMap
 	 *            The Running Task Map in the Computer Proxy, where the

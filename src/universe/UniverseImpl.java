@@ -17,8 +17,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+//import java.util.stream.Collectors;
+//import java.util.stream.Stream;
 
 import result.ValueResult;
 import api.Result;
@@ -137,8 +137,8 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 				Universe.SERVICE_NAME, universe);
 		// Take Checkpoint periodically
 		while (true) {
-			Thread.sleep(10000);
-			// universe.checkPoint();
+			Thread.sleep(1000);
+			universe.checkPoint();
 		}
 	}
 
@@ -335,7 +335,12 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 				"Space {0} is down.", spaceProxy.ID);
 	}
 
-	private class ServerProxy {
+	private class ServerProxy implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = -6762820061270809812L;
+
 		/**
 		 * Associated Server
 		 */
@@ -413,7 +418,12 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 			return null;
 		}
 
-		private class ReceiveService extends Thread {
+		private class ReceiveService extends Thread implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 7243273067156782355L;
+
 			@Override
 			public void run() {
 				while (!isInterrupt) {
@@ -436,7 +446,12 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		 * Ready Task Queue.
 		 *
 		 */
-		private class SendService extends Thread {
+		private class SendService extends Thread implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -3664570163433948598L;
+
 			@Override
 			public void run() {
 				while (true) {
@@ -475,7 +490,12 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		}
 	}
 
-	private class SpaceProxy {
+	private class SpaceProxy implements Serializable {
+		/**
+		 * 
+		 */
+		private static final long serialVersionUID = 533389829029728826L;
+
 		/**
 		 * Associated Space.
 		 */
@@ -537,7 +557,12 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 			return TaskID.incrementAndGet();
 		}
 
-		private class ReceiveService extends Thread {
+		private class ReceiveService extends Thread implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = -855043841330311213L;
+
 			@Override
 			public void run() {
 				while (true) {
@@ -593,7 +618,12 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		 * Ready Task Queue.
 		 *
 		 */
-		private class SendService extends Thread {
+		private class SendService extends Thread implements Serializable {
+			/**
+			 * 
+			 */
+			private static final long serialVersionUID = 1499104632932748878L;
+
 			@Override
 			public void run() {
 				while (!isInterrupt) {
@@ -654,5 +684,4 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 			}
 		}
 	}
-
 }
