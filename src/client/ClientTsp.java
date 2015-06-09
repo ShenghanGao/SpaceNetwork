@@ -57,7 +57,7 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 		System.setSecurityManager(new SecurityManager());
 
 		String serverDomainName = args.length == 0 ? "localhost" : args[0];
-		ClientTsp client = new ClientTsp("ClientTSP");
+		ClientTsp client = new ClientTsp("TSP");
 		client.begin();
 
 //		double[][] CITIES = {
@@ -75,16 +75,16 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 		
 		double[][] CITIES = 
 			{
-//				{ 1, 1 },
-				{ 8, 1 },
+				{ 1, 1 },
+//				{ 8, 1 },
 //				{ 8, 8 },
-				{ 1, 8 },
+//				{ 1, 8 },
 				{ 2, 2 },
 				{ 7, 2 },
-				{ 7, 7 },
+    			{ 7, 7 },
 				{ 2, 7 },
 				{ 3, 3 },
-//				{ 6, 3 },
+				{ 6, 3 },
 				{ 6, 6 },
 				{ 3, 6 },
 				{ 4, 4 },
@@ -116,7 +116,7 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Server domain name!");
 		} catch (RemoteException e) {
-			System.out.println("Cannot register to the Server!");
+			System.out.println("Cannot regiseter to the Server!");
 		}
 		client.end();
 	}

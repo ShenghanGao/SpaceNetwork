@@ -14,6 +14,8 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import api.Computer;
 import api.Result;
@@ -98,8 +100,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		try {
 			space = new SpaceImpl(universeDomainName);
 		} catch (RemoteException e) {
-			e.printStackTrace();
-			System.out.println("Cannot register to the Universe!");
+			System.out.println("Cannot regiseter to the Universe!");
 			return;
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Universe domain name!");
@@ -555,26 +556,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 					if (task == null) {
 						continue;
 					}
-					// Task ID Reset
-					// Computer Task Track
-					// !:F:1:S0:1:U1:P1:1
-					// !:F:1:S0:1:U1:P1:1:C1:1
-					//   F:1:S0:1:U1:P0:1:C2:3:W1
-					//   F:1:S0:1:U1:P0:1:C1:1:W1
-					// F:1:S0:1:U1:P0:1:C1:W1
-					if (task.getID()
-							.matches("^(!:)?[^!$:]+:\\d+:S\\d+:\\d+:U\\d+:P\\d+:\\d+$")) {
-					//	task.setID(task.getID() + ":C" + ID + ":"
-						//		+ makeTaskID());
-						task.setID(task.getID() + ":C" + ID);
-					} else {
-		/*				String[] taskids = task.getID().split(":");
-						taskids[7] = "C" + ID;
-						taskids[8] = Integer.toString(makeTaskID());
-						String taskid = Stream.of(taskids).collect(
-								Collectors.joining(":"));
-						task.setID(taskid);*/
-					}
+					
 					synchronized (runningTaskMap) {
 						try {
 							computer.addTask(task);

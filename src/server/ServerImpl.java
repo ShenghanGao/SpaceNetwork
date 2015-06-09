@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import result.ValueResult;
 import api.Result;
 import api.Server;
 import api.Task;
@@ -175,8 +176,8 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 	public void dispatchResult(final Result result) throws RemoteException {
 		if (Config.DEBUG)
 			System.out.println("Server wants to dispatch Result " + result.getID() + " to clientProxies.");
-		String resultID[] = result.getID().split(":");
-		String clientID = resultID[0];
+		String resultID[] = ((ValueResult<?>)result).getTargetTaskID().split(":");;
+		String clientID = resultID[1];
 		if (clientProxies.containsKey(clientID)) {
 			clientProxies.get(clientID).addResult(result);
 		}
@@ -266,7 +267,8 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 			System.out.println("Client is not registered in the Server");
 			return null;
 		}
-		return clientProxies.get(clientname).submitTask(task).substring(2);
+		String generatedID = clientProxies.get(clientname).submitTask(task);
+		return generatedID;
 	}
 
 	@Override
@@ -401,10 +403,11 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		private String submitTask(Task<?> task) {
 			// Task ID Reset
 			// !:F:1:S0:1
-			String taskID = this.name + ":" + makeTaskID() + ":S" + server.ID
+			String taskID ="INI:"+ this.name + ":" + makeTaskID() + ":S" + server.ID
 					+ ":" + server.makeTaskID();
-			task.setID("!:" + taskID);
-			task.setTargetID("$:" + taskID);
+			System.out.println("INI   task ID "+taskID);
+			task.setID(taskID);
+			task.setTargetID(taskID);
 			server.addTask(task);
 			if (Config.DEBUG) {
 				System.out.println("Server-Client Proxy: Task " + task.getID()

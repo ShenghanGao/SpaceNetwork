@@ -102,11 +102,7 @@ public class ValueResult<ValueType> extends Result {
 	 * @return True if it is the final result. False otherwise.
 	 */
 	public boolean isFinal() {
-		if (targetTaskId.charAt(0) == '$') {
-			return true;
-		} else {
-			return false;
-		}
+		return targetTaskId.startsWith("INI:");
 	}
 	
 	/**

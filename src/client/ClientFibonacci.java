@@ -53,7 +53,7 @@ public class ClientFibonacci extends Client<Integer, Integer> {
 		if (args.length == 1) {
 			serverDomainName = args[0];
 			clientName = "Fibonacci";
-			N = 10;
+			N = 22;
 		} else if(args.length == 3) {
 			serverDomainName = args[0];
 			clientName = args[1];
@@ -61,7 +61,7 @@ public class ClientFibonacci extends Client<Integer, Integer> {
 		} else {
 			serverDomainName = "localhost";
 			clientName = "Fibonacci";
-			N = 19;
+			N = 24;
 		}
 		// Change the Client Interface to accept server name, client name, and N. 
 		ClientFibonacci client = new ClientFibonacci(clientName);

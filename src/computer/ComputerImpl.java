@@ -6,6 +6,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -107,7 +108,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 			System.out.println("Bad Space domain name!");
 			return;
 		} catch (RemoteException e) {
-			System.out.println("Cannot register to the Space!");
+			System.out.println("Cannot regiseter to the Space!");
 			return;
 		}
 
@@ -263,16 +264,8 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	 */
 	private String[] makeTaskIDList(String oldID, int num) {
 		String[] IDs = new String[num];
-		/*
-		 * int index = oldID.indexOf(":W"); String prefix = oldID.substring(0,
-		 * index + 2); for (int i = 0; i < num; i++) { String taskid = prefix +
-		 * makeTaskID(); IDs[i] = taskid; } return IDs;
-		 */
-		int index = oldID.indexOf(":C");
-		String prefix = oldID.substring(0, index + 2);
 		for (int i = 0; i < num; i++) {
-			String taskid = prefix + ID + ":W" + makeTaskID();
-			IDs[i] = taskid;
+			IDs[i] = UUID.randomUUID().toString();
 		}
 		return IDs;
 	}
@@ -296,9 +289,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 				// Task ID Reset
 				// !:F:1:S0:1:U1:P1:1:C1:1:W1
 				// F:1:S0:1:U1:P0:1:C1:1:W1
-				if (!task.getID().contains(":W")) { // only for the virgin
-					task.setID(task.getID() + ":W" + makeTaskID());
-				}
+				
 				if (Config.DEBUG) {
 					System.out.println("Worker: Task " + task.getID() + "-"
 							+ task.getLayer() + "-" + task.isCoarse()
@@ -355,14 +346,6 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	private <T> Result execute(Task<T> task) {
 		final Result result = task.execute();
 		final int resultType = result.getType();
-		if (result.getID().charAt(0) == '!') {
-			// Only the result of the root task is able to reach here.
-			int index = result.getID().indexOf(":W");
-			String resultid = result.getID().substring(2, index);
-			result.setID(resultid);
-			String taskid = task.getID().substring(2);
-			task.setID(taskid);
-		}
 		if (resultType == Result.VALUERESULT) {
 			return result;
 		} else {
@@ -374,6 +357,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 			// Assign Successor Task with an Task ID
 			Task<?> successor = subtasks.get(0);
 			successor.setID(taskIDs[0]);
+			
 			if (Config.DEBUG) {
 				System.out.println("	Successor: " + successor.getID() + "-"
 						+ successor.getLayer() + "-" + successor.isCoarse());

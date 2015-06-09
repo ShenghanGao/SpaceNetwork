@@ -12,6 +12,7 @@ import java.rmi.server.UnicastRemoteObject;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,6 +20,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 //import java.util.stream.Collectors;
 //import java.util.stream.Stream;
+
 
 import result.ValueResult;
 import api.Result;
@@ -111,15 +113,11 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 			return;
 		}
 		readyTaskQueue = readUniverse.readyTaskQueue;
+		
 		successorTaskMap = readUniverse.successorTaskMap;
-		serverProxies = readUniverse.serverProxies;
-		for (int i : serverProxies.keySet()) {
-			serverProxies.get(i).start();
-		}
+		serverProxies = readUniverse.serverProxies;		
 		spaceProxies = readUniverse.spaceProxies;
-		for (int i : spaceProxies.keySet()) {
-			spaceProxies.get(i).start();
-		}
+		
 		try {
 			objectinputstream.close();
 		} catch (IOException e) {
@@ -133,16 +131,23 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		System.setSecurityManager(new SecurityManager());
 		universe = args.length == 0 ? new UniverseImpl() : new UniverseImpl(
 				recoveryFileName);
+		System.out.println("  is null  "+ (universe.readyTaskQueue == null));
+		for (int i : universe.serverProxies.keySet()) {
+			universe.serverProxies.get(i).start();
+		}
+		for (int i : universe.spaceProxies.keySet()) {
+			universe.spaceProxies.get(i).start();
+		}
+		
 		LocateRegistry.createRegistry(Universe.PORT).rebind(
 				Universe.SERVICE_NAME, universe);
 		// Take Checkpoint periodically
 		while (true) {
-			Thread.sleep(10000);
-			System.out.println("Thread.activeCount(): " + Thread.activeCount());
+			Thread.sleep(200000);
 			universe.checkPoint();
 		}
 	}
-	
+
 	private void checkPoint() {
 		try {
 			FileOutputStream fout = new FileOutputStream(recoveryFileName);
@@ -232,8 +237,8 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 	public void dispatchResult(final Result result) {
 		if (Config.DEBUG)
 			System.out.println("Universe wants to dispatch Result " + result.getID() + " to serverProxies.");
-		String resultID[] = result.getID().split(":");
-		int serverID = Integer.parseInt(resultID[2].substring(1));
+		String resultID[] = ((ValueResult<?>)result).getTargetTaskID().split(":");
+		int serverID = Integer.parseInt(resultID[3].substring(1));
 		synchronized (serverProxies) {
 			if (serverProxies.containsKey(serverID)) {
 				serverProxies.get(serverID).addResult(result);
@@ -476,7 +481,8 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 					}
 					// Task ID Reset
 					// !F:1:S0:1:U1
-					task.setID(task.getID() + ":U" + makeTaskID());
+					
+					//task.setID(task.getID());
 					synchronized (universe.readyTaskQueue) {
 						universe.addReadyTask(task);
 						if (Config.DEBUG) {
@@ -568,7 +574,9 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 			public void run() {
 				while (true) {
 					Result result = null;
+					
 					try {
+						
 						result = space.getResult();
 					} catch (RemoteException e) {
 						System.out.println("Receive Servcie: Space " + ID
@@ -638,22 +646,6 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 						task = universe.getReadyTask();
 						if (task == null) {
 							continue;
-						}
-						// Task ID Reset
-						// Space Task Tracking
-						// !:F:1:S0:1:U1:P1:1
-						//   F:1:S0:1:U1:P0:1:C1:1:W1
-						//  F:1:S0:1:U1:P0:1
-						if (!task.getID().contains(":P")) {
-							task.setID(task.getID() + ":P" + ID + ":"
-									+ makeTaskID());
-						} else {
-			/*				String[] taskids = task.getID().split(":");
-							taskids[5] = "P" + ID;
-							taskids[6] = Integer.toString(makeTaskID());
-							String taskid = Stream.of(taskids).collect(
-									Collectors.joining(":"));
-							task.setID(taskid);*/
 						}
 						synchronized (runningTaskMap) {
 							try {
