@@ -213,10 +213,17 @@ public class ValueResult<ValueType> extends Result {
 		SuccessorTask<ValueType> successortask = (SuccessorTask<ValueType>) universe
 				.getSuccessorTask(targetTaskId);
 		if (Config.DEBUG) {
-			if (successortask == null)
+			if (successortask == null) {
 				System.out.println("	Result:Successor " + targetTaskId
 						+ " is not in universe!");
+				System.out.println("targetArgIndex: " + targetArgIndex);
+				System.out.println("orginTaskID :" + orginTaskID);
+				universe.printSuccessors();
+			}
 		}
+		System.out.println("	Result:Successor " + targetTaskId
+						+ " is found in universe!");
+
 		// Set the argument in the target successor task at the target index.
 		successortask.setArgAt(targetArgIndex, this.value);
 		if (Config.DEBUG) {

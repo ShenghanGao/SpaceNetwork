@@ -33,4 +33,5 @@ public interface Universe extends Remote {
 	 *             Cannot connect with Universe.
 	 */
 	void register(final Space space) throws RemoteException;
+	void printSuccessors() throws RemoteException;
 }

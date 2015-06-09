@@ -336,6 +336,13 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 				"Space {0} is down.", spaceProxy.ID);
 	}
 
+	public void printSuccessors() {
+		System.out.println("Error!!!\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nERRORRRRRRRRRRRRR!!!!!!!!!!!!!!!!!!");
+		for (String s:successorTaskMap.keySet())
+			System.out.println("In the map: " + s);
+		System.out.println("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nERRORRRRRRRRRRRRR!!!!!!!!!!!!!!!!!!");
+	}
+
 	private class ServerProxy implements Serializable {
 		/**
 		 * 
@@ -569,7 +576,9 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 				while (true) {
 					Result result = null;
 					try {
+						System.out.println("Spaceproxy ReceiveService is trying to get a RESULT BLOCKING!!!");
 						result = space.getResult();
+						System.out.println("A RESULT IS GOTTEN!!!");
 					} catch (RemoteException e) {
 						System.out.println("Receive Servcie: Space " + ID
 								+ " is Down!");
