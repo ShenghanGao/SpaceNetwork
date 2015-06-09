@@ -10,5 +10,5 @@ public abstract class FibonacciTaskConfig {
 	 * Fibonacci Task Coarse Level
 	 *
 	 */
-	public static final int FibonacciCoarse = 1;
+	public static final int FibonacciCoarse = 3;
 }

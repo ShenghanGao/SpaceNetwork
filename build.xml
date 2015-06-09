@@ -3,7 +3,7 @@
   <property name= "src.path"          location= "src"/>
   <property name= "bin.path"          location= "bin"/>
   <property name= "javadoc.path"      location= "documents/javadoc"/>
-  <property name= "policy.path"       location= "policy/policy"/>
+  <property name= "policy.path"       location= "policy"/>
   <property name= "jar.path"          location= "jar"/>
   
   <property name= "api_src.path"          location= "${src.path}/api"/>

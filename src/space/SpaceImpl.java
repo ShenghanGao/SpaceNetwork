@@ -14,8 +14,6 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import api.Computer;
 import api.Result;
@@ -100,7 +98,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		try {
 			space = new SpaceImpl(universeDomainName);
 		} catch (RemoteException e) {
-			System.out.println("Cannot regiseter to the Universe!");
+			e.printStackTrace();
+			System.out.println("Cannot register to the Universe!");
 			return;
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Universe domain name!");
@@ -563,7 +562,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 					//   F:1:S0:1:U1:P0:1:C2:3:W1
 					//   F:1:S0:1:U1:P0:1:C1:1:W1
 					// F:1:S0:1:U1:P0:1:C1:W1
-					if (!task.getID().contains(":C")) {
+					if (task.getID()
+							.matches("^(!:)?[^!$:]+:\\d+:S\\d+:\\d+:U\\d+:P\\d+:\\d+$")) {
 					//	task.setID(task.getID() + ":C" + ID + ":"
 						//		+ makeTaskID());
 						task.setID(task.getID() + ":C" + ID);

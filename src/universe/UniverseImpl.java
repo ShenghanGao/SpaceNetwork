@@ -137,11 +137,12 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 				Universe.SERVICE_NAME, universe);
 		// Take Checkpoint periodically
 		while (true) {
-			Thread.sleep(1000);
+			Thread.sleep(10000);
+			System.out.println("Thread.activeCount(): " + Thread.activeCount());
 			universe.checkPoint();
 		}
 	}
-
+	
 	private void checkPoint() {
 		try {
 			FileOutputStream fout = new FileOutputStream(recoveryFileName);

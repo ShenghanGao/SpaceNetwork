@@ -107,7 +107,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 			System.out.println("Bad Space domain name!");
 			return;
 		} catch (RemoteException e) {
-			System.out.println("Cannot regiseter to the Space!");
+			System.out.println("Cannot register to the Space!");
 			return;
 		}
 
@@ -356,10 +356,9 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		final Result result = task.execute();
 		final int resultType = result.getType();
 		if (result.getID().charAt(0) == '!') {
+			// Only the result of the root task is able to reach here.
 			int index = result.getID().indexOf(":W");
-			String resultid = (resultType == Result.VALUERESULT)?
-					result.getID().substring(2, index):
-					result.getID().substring(0, index);
+			String resultid = result.getID().substring(2, index);
 			result.setID(resultid);
 			String taskid = task.getID().substring(2);
 			task.setID(taskid);
