@@ -16,7 +16,7 @@
   <property name= "space_src.path"        location= "${src.path}/space"/>
   <property name= "config_src.path"       location= "${src.path}/config"/>
   <property name= "universe_src.path"     location= "${src.path}/universe"/>
-  <property name= "server_src.path"     location= "${src.path}/server"/>
+  <property name= "server_src.path"       location= "${src.path}/server"/>
   
   <property name= "api_bin.path"          location= "${bin.path}/api"/>
   <property name= "client_bin.path"       location= "${bin.path}/client"/>
@@ -28,27 +28,24 @@
   <property name= "space_bin.path"        location= "${bin.path}/space"/>
   <property name= "config_bin.path"       location= "${bin.path}/config"/>
   <property name= "universe_bin.path"     location= "${bin.path}/universe"/>
-  <property name= "server_bin.path"     location= "${bin.path}/server"/>
+  <property name= "server_bin.path"       location= "${bin.path}/server"/>
   
   <property name= "clientFJar.path"        location= "${jar.path}/clientF.jar"/>
   <property name= "clientTJar.path"        location= "${jar.path}/clientT.jar"/>
-  <property name= "computerJar.path"      location= "${jar.path}/computer.jar"/>
-  <property name= "spaceJar.path"         location= "${jar.path}/space.jar"/>
-  <property name= "universeJar.path"      location= "${jar.path}/universe.jar"/>
-  <property name= "serverJar.path"        location= "${jar.path}/server.jar"/>
+  <property name= "computerJar.path"       location= "${jar.path}/computer.jar"/>
+  <property name= "spaceJar.path"          location= "${jar.path}/space.jar"/>
+  <property name= "universeJar.path"       location= "${jar.path}/universe.jar"/>
+  <property name= "serverJar.path"         location= "${jar.path}/server.jar"/>
    
   <property name= "AUTHOR"              value= "AllMembers"/>
   <property name= "VERSION"             value= "1.0"/>
   
-  <property name= "SPACEADDR"           value= "localhost"/>
   <property name= "UNIVERSEADDR"        value= "localhost"/>
-  <property name= "SERVERADDR"          value= "localhost"/>
   
   <target name="welcome" description="Basic Information">
       <echo message="Author: ${AUTHOR}"/>
       <echo message="VERSION: ${VERSION}"/>
-      <echo message="Host address for the server is ${SPACEADDR}"/>
-      <echo message="This is for building and running the HW2 project."/>
+      <echo message="This is for building and running the SpaceNetwork project."/>
       <echo message="Run Command:"/>
       <echo message="1.  To build class directories:               ant build-dir"/>
       <echo message="2.  To compile and jar all files:             ant compile"/>
@@ -59,8 +56,8 @@
       <echo message="7.  To run a computer(worker):                ant runComputer"/>
       <echo message="8.  To run client Fibonacci:              	   ant runFibonacciClient/runF"/>
       <echo message="9.  To run client EuclideanTsp:               ant runTspClient/runT"/>
-      <echo message="10.  To generate javadoc for tasks and api:    ant javadoc"/>
-      <echo message="11.  To delete all directories:                ant clean"/>      
+      <echo message="10. To generate javadoc for tasks and api:    ant javadoc"/>
+      <echo message="11. To delete all directories:                ant clean"/>      
       <input message="Press return key to continue..."/>
   </target> 
   
@@ -84,6 +81,9 @@
 	<javadoc packagenames="fibonacci_tasks.*,tsp_tasks.*,task.*,api.*,result.*,client.*,computer.*,space.*,server.*,universe.*,config.*" sourcepath="${src.path}" destdir="${javadoc.path}" />
   </target>
   
+  <target name="getUniverseAgs" unless="universeArgs" description="Universe run arguments">
+	 <input addProperty="universeArgs" message="Normal mode press enter, Recovery mode type -r:"/>
+  </target>
    <target name="runUniverse" depends = "getUniverseAgs" description="start universe">   
     <echo message="Start Universe!" />
     <java classname="universe.UniverseImpl" fork="true">
@@ -93,11 +93,6 @@
   	  </classpath>
 	  <arg line="${universeArgs}"/>
     </java>
-  </target>
-  
-    
-  <target name="getUniverseAgs" unless="universeArgs" description="Universe run arguments">
-	 <input addProperty="universeArgs" message="Normal mode press enter, Recovery mode type -r:"/>
   </target>
   
   <target name="runServer" description="start Server">   
@@ -122,6 +117,9 @@
     </java>
   </target>
   
+   <target name="getComputerAgs" unless="computerArgs" description="Computer run arguments">
+	 <input addProperty="computerArgs" message="Type in Space Address:"/>
+   </target>
    <target name="runComputer" depends = "getComputerAgs" description="start computer">   
     <echo message="Start Computer!" />
     <java classname="computer.ComputerImpl" fork="true">
@@ -133,10 +131,9 @@
     </java>
   </target>
   
-   <target name="getComputerAgs" unless="computerArgs" description="Computer run arguments">
-	 <input addProperty="computerArgs" message="Type in Space Address:"/>
+  <target name="getClientFAgs" unless="clientFArgs" description="Client Fibonacci Arguments">
+	 <input addProperty="clientFArgs" message="Type in Server Address, Client name, Fibonacci number:"/>
   </target>
-  
   <target name="runF"  description="start Fibonacci Client" depends="runFibonacciClient"/>
   <target name="runFibonacciClient" depends = "getClientFAgs" description="start Fibonacci Client">   
     <echo message="Start Fibonacci Client!" />
@@ -149,10 +146,9 @@
     </java>
   </target>
   
-  <target name="getClientFAgs" unless="clientFArgs" description="Computer run arguments">
-	 <input addProperty="clientFArgs" message="Type in Server Address, Client name, fibonacci number:"/>
+  <target name="getClientTAgs" unless="clientTArgs" description="Computer run arguments">
+	 <input addProperty="clientTArgs" message="Type in Server Address, Client name:"/>
   </target>
-  
    <target name="runT"  description="start TSP Client" depends="runTspClient"/>
    <target name="runTspClient" depends = "getClientTAgs" description="start Tsp Client">   
     <echo message="Start Tsp Client!" />
@@ -164,10 +160,7 @@
 	   <arg line="${clientTArgs}"/>
     </java>
   </target>
-  
-  <target name="getClientTAgs" unless="clientTArgs" description="Computer run arguments">
-	 <input addProperty="clientTArgs" message="Type in Server Address, Client name:"/>
-  </target>
+ 
   
   <!-- Build Directory -->  
   <target name="build-dir" description="build directory">
