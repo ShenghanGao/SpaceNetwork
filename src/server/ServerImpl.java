@@ -6,6 +6,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import result.ValueResult;
 import api.Result;
 import api.Server;
 import api.Task;
@@ -152,13 +154,8 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 	 */
 	@Override
 	public Task<?> getTask() throws RemoteException {
-		try {
-			return readyTaskQueue.take();
-		} catch (InterruptedException e) {
-			System.out
-					.println("Server: Interrupted when taking task from Ready Task Queue");
-		}
-		return null;
+		Task<?> task = readyTaskQueue.poll();
+		return task;
 	}
 
 	/**
@@ -174,9 +171,12 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 	@Override
 	public void dispatchResult(final Result result) throws RemoteException {
 		if (Config.DEBUG)
-			System.out.println("Server wants to dispatch Result " + result.getID() + " to clientProxies.");
-		String resultID[] = result.getID().split(":");
-		String clientID = resultID[0];
+			System.out.println("Server wants to dispatch Result "
+					+ result.getID() + " to clientProxies.");
+		String resultID[] = ((ValueResult<?>) result).getTargetTaskID().split(
+				":");
+		;
+		String clientID = resultID[1];
 		if (clientProxies.containsKey(clientID)) {
 			clientProxies.get(clientID).addResult(result);
 		}
@@ -194,8 +194,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 	public boolean register(final String clientName, final String duration)
 			throws RemoteException {
 		if (clientName == null || clientName.contains("!")
-				|| clientName.contains("$")
-				|| clientName.contains(":")
+				|| clientName.contains("$") || clientName.contains(":")
 				|| clientProxies.containsKey(clientName)) {
 			System.out.println("Client Name is invalid!");
 			return false;
@@ -266,7 +265,10 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 			System.out.println("Client is not registered in the Server");
 			return null;
 		}
-		return clientProxies.get(clientname).submitTask(task).substring(2);
+
+		String generatedID = clientProxies.get(clientname).submitTask(task);
+		System.out.println("Ready task queue size: " + readyTaskQueue.size());
+		return generatedID;
 	}
 
 	@Override
@@ -386,6 +388,7 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 			try {
 				return resultQueue.take();
 			} catch (InterruptedException e) {
+				System.out.println("Interrupted!");
 			}
 			return null;
 		}
@@ -399,12 +402,11 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 		 * @return Task ID
 		 */
 		private String submitTask(Task<?> task) {
-			// Task ID Reset
-			// !:F:1:S0:1
-			String taskID = this.name + ":" + makeTaskID() + ":S" + server.ID
-					+ ":" + server.makeTaskID();
-			task.setID("!:" + taskID);
-			task.setTargetID("$:" + taskID);
+			String taskID = "INI:" + this.name + ":" + makeTaskID() + ":S"
+					+ server.ID + ":" + server.makeTaskID();
+			System.out.println("INI   task ID " + taskID);
+			task.setID(taskID);
+			task.setTargetID(taskID);
 			server.addTask(task);
 			if (Config.DEBUG) {
 				System.out.println("Server-Client Proxy: Task " + task.getID()
@@ -425,6 +427,18 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 			}
 		}
 
+	}
+
+	@Override
+	public ArrayList<String> check() throws RemoteException {
+		ArrayList<String> status = new ArrayList<String>();
+		status.add("" + clientProxies.size());
+		status.add("" + TaskID.get());
+		for (String i : clientProxies.keySet()) {
+			String s = i + ":" + clientProxies.get(i).taskID;
+			status.add(s);
+		}
+		return status;
 	}
 
 }

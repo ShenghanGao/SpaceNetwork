@@ -70,9 +70,7 @@ public class FibonacciSuccessorTask extends SuccessorTask<Integer> {
 		ValueResult<Integer> result = new ValueResult<Integer>(this.getID(),
 				sum, this.getTargetID(), this.getTargetSuccessorTaskArgIndex(),
 				isCoarse(), taskStartTime, taskEndTime);
-		if (this.getOriginID() != null) {
-			result.setOrginTaskID(getOriginID());
-		}
+		
 		return result;
 	}
 

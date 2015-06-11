@@ -15,10 +15,7 @@ public abstract class SuccessorTask<T> extends Task<T> {
 	 */
 	private int missingArgNum;
 
-	/**
-	 * Origin Task ID
-	 */
-	private String originID;
+
 
 	/**
 	 * Constructor of successor task. Call from inside.
@@ -36,7 +33,6 @@ public abstract class SuccessorTask<T> extends Task<T> {
 			int targetSuccessorTaskArgIndex) {
 		super(arg);
 		this.missingArgNum = argNum;
-		this.originID = null;
 		this.setTargetID(targetSuccessorTaskId);
 		this.setTargetSuccessorTaskArgIndex(targetSuccessorTaskArgIndex);
 	}
@@ -88,23 +84,8 @@ public abstract class SuccessorTask<T> extends Task<T> {
 		this.targetSuccessorTaskArgIndex = targetSuccessorTaskArgIndex;
 	}
 
-	/**
-	 * Get Origin Task ID
-	 * 
-	 * @return Origin Task ID
-	 */
-	public String getOriginID() {
-		return originID;
-	}
 
-	/**
-	 * Set Origin Task ID
-	 * 
-	 * @param originID
-	 *            Origin Task ID
-	 */
-	public void setOrginID(String originID) {
-		this.originID = originID;
-	}
+
+
 
 }

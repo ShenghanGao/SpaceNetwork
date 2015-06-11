@@ -2,6 +2,7 @@ package api;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 public interface Server extends Remote {
 	/**
@@ -53,7 +54,8 @@ public interface Server extends Remote {
 	 * @throws RemoteException
 	 *             Cannot connect with Server.
 	 */
-	public boolean register(final String clientname, final String duration) throws RemoteException;
+	public boolean register(final String clientname, final String duration)
+			throws RemoteException;
 
 	/**
 	 * Unregister a Client in Server. Call from Client.
@@ -75,7 +77,7 @@ public interface Server extends Remote {
 	 * @throws RemoteException
 	 *             Cannot connect with Server
 	 */
-	String submit(final Task<?> task, final String clientname)
+	public String submit(final Task<?> task, final String clientname)
 			throws RemoteException;
 
 	/**
@@ -87,5 +89,7 @@ public interface Server extends Remote {
 	 * @throws RemoteException
 	 *             Cannot connect with Server
 	 */
-	Result getResult(final String clientname) throws RemoteException;
+	public Result getResult(final String clientname) throws RemoteException;
+
+	public ArrayList<String> check() throws RemoteException;
 }

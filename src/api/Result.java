@@ -52,6 +52,28 @@ public abstract class Result implements Serializable {
 	private Boolean coarse;
 
 	/**
+	 * Computer Task Count
+	 */
+	private Integer ComputerCount;
+
+	/**
+	 * Computer is busy
+	 */
+	private Boolean computerIsBusy;
+
+	/**
+	 * Space Task Count
+	 */
+	private Integer spaceCount;
+	
+	/**
+	 * Space is busy
+	 */
+	private Boolean spaceIsBusy;
+
+
+
+	/**
 	 * Constructor of Result.
 	 * 
 	 * @param resultId
@@ -159,6 +181,72 @@ public abstract class Result implements Serializable {
 		stringBuilder.append(getClass());
 		stringBuilder.append("\n\tExecution time:\t").append(getTaskRuntime());
 		return stringBuilder.toString();
+	}
+
+	/**
+	 * Get Computer Count
+	 * 
+	 * @return the computerCount
+	 */
+	public Integer getComputerCount() {
+		return ComputerCount;
+	}
+
+	/**
+	 * Set computer count
+	 * 
+	 * @param computerCount
+	 *            the computerCount to set
+	 */
+	public void setComputerCount(Integer computerCount) {
+		ComputerCount = computerCount;
+	}
+
+	/**
+	 * Get Space Task Count
+	 * 
+	 * @return the spaceCount
+	 */
+	public Integer getSpaceCount() {
+		return spaceCount;
+	}
+
+	/**
+	 * Set Space Task Count
+	 * 
+	 * @param spaceCount
+	 *            the spaceCount to set
+	 */
+	public void setSpaceCount(Integer spaceCount) {
+		this.spaceCount = spaceCount;
+	}
+
+	/**
+	 * @return the computerIsBusy
+	 */
+	public Boolean getComputerIsBusy() {
+		return computerIsBusy;
+	}
+
+	/**
+	 * @param computerIsBusy the computerIsBusy to set
+	 */
+	public void setComputerIsBusy(Boolean computerIsBusy) {
+		this.computerIsBusy = computerIsBusy;
+	}
+
+	/**
+	 * @return the spaceIsBusy
+	 */
+	public Boolean getSpaceIsBusy() {
+		return spaceIsBusy;
+	}
+
+	/**
+	 * @param spaceIsBusy the spaceIsBusy to set
+	 */
+	public void setSpaceIsBusy(Boolean spaceIsBusy) {
+		this.spaceIsBusy = spaceIsBusy;
 	}
 
 }

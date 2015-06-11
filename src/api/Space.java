@@ -2,6 +2,7 @@ package api;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 /**
  * 
@@ -57,4 +58,18 @@ public interface Space extends Remote {
 	 *             Cannot connect with Space.
 	 */
 	public void register(final Computer computer) throws RemoteException;
+	
+	/**
+	 * Restart Space Status
+	 * @throws RemoteException
+	 */
+	public void restart() throws RemoteException;
+	
+	/**
+	 * Check status
+	 * @return
+	 * @throws RemoteException
+	 */
+	public ArrayList<String> check() throws RemoteException;
+	
 }

@@ -143,7 +143,7 @@ public class TspReadyTask extends ReadyTask<TspData> {
 			}
 			TspSuccessorTask successorTask = new TspSuccessorTask(args, argNum,
 					this.getTargetID(), this.getTargetSuccessorTaskArgIndex());
-			successorTask.setLayer(getLayer());
+			successorTask.setLayer(getLayer()+1);
 			successorTask.setSpaceRunnable(true);
 			subtasks.add(successorTask);
 
@@ -167,7 +167,7 @@ public class TspReadyTask extends ReadyTask<TspData> {
 				subtasks.add(child);
 			}
 			long taskEndTime = System.nanoTime();
-			return new TaskResult<TspData>(this.getID(), subtasks, isCoarse(),
+			return new TaskResult<TspData>(this.getID(), subtasks, successorTask.isCoarse(),
 					taskStartTime, taskEndTime);
 		}
 	}
