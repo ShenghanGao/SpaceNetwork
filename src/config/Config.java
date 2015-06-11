@@ -19,7 +19,7 @@ public abstract class Config {
 	/**
 	 * Flag of Computer using mulitithread
 	 */
-	public final static boolean ComputerMultithreadFlag = false;
+	public final static boolean ComputerMultithreadFlag = true;
 
 	/**
 	 * Flag of Status Output

@@ -9,7 +9,6 @@ import java.util.*;
  * is decided by the <i>args</i> in it, which is a list of <b>TspData</b> objects.
  */
 public class TspData implements Serializable {
-	
 	private static final long serialVersionUID = -1662829519219063057L;
 	
 	/**

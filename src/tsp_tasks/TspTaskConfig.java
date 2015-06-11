@@ -1,5 +1,9 @@
 package tsp_tasks;
 
+/**
+ * TSP Task Configuration.
+ *
+ */
 public abstract class TspTaskConfig {
 
 	/**
@@ -10,7 +14,7 @@ public abstract class TspTaskConfig {
 	public static final int stopSign = 8;
 
 	/**
-	 * TSP Task Corase Level
+	 * TSP Task Coarse Level
 	 */
 	public static final int TSPCoarse = 3;
 }

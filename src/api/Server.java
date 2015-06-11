@@ -4,6 +4,10 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 
+/**
+ * Server Interface exposed to Universe and Client
+ *
+ */
 public interface Server extends Remote {
 	/**
 	 * The port used by the RMI registry.
@@ -81,7 +85,7 @@ public interface Server extends Remote {
 			throws RemoteException;
 
 	/**
-	 * Get the Result of a Task.
+	 * Get the Result of a Task. Call from Client.
 	 * 
 	 * @param clientname
 	 *            Client Name
@@ -91,5 +95,12 @@ public interface Server extends Remote {
 	 */
 	public Result getResult(final String clientname) throws RemoteException;
 
+	/**
+	 * Get the status of server. Call from Server Proxy in Universe.
+	 * 
+	 * @return status of Server
+	 * @throws RemoteException
+	 *             Cannot connect with Server
+	 */
 	public ArrayList<String> check() throws RemoteException;
 }

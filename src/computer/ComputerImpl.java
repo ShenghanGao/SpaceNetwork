@@ -231,8 +231,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	}
 
 	/**
-	 * Generate a list of Task ID. ClientName:Num:S:Num:U:P:Num:C:W
-	 * F:1:S0:1:U1:P1:1:C1:W1
+	 * Generate a list of Task ID. 
 	 * 
 	 * @param oldID
 	 *            Old ID

@@ -22,7 +22,10 @@ import api.Server;
 import api.Task;
 import api.Universe;
 import config.Config;
-
+/**
+ * Server Implementation
+ *
+ */
 public class ServerImpl extends UnicastRemoteObject implements Server {
 	private static final long serialVersionUID = -7458792337176706359L;
 
@@ -265,7 +268,6 @@ public class ServerImpl extends UnicastRemoteObject implements Server {
 			System.out.println("Client is not registered in the Server");
 			return null;
 		}
-
 		String generatedID = clientProxies.get(clientname).submitTask(task);
 		System.out.println("Ready task queue size: " + readyTaskQueue.size());
 		return generatedID;

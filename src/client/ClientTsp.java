@@ -22,6 +22,10 @@ import result.ValueResult;
 import tsp_tasks.TspData;
 import tsp_tasks.TspReadyTask;
 
+/**
+ * TSP Client.
+ *
+ */
 public class ClientTsp extends Client<List<Integer>, double[][]> {
 	private static final long serialVersionUID = 4192126821917742620L;
 	private static final int NUM_PIXALS = 600;
@@ -55,7 +59,6 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception {
 		System.setSecurityManager(new SecurityManager());
-
 		String serverDomainName = args.length == 0 ? "localhost" : args[0];
 		ClientTsp client = new ClientTsp("TSP");
 		client.begin();

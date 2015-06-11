@@ -47,19 +47,17 @@ public interface Computer extends Remote {
 	public Result getResult() throws RemoteException;
 
 	/**
+	 * Restart the Computer. Call from Computer Proxy in Space.
+	 * 
+	 * @throws RemoteException
+	 */
+	public void restart() throws RemoteException;
+
+	/**
 	 * Exit
 	 * 
 	 * @throws RemoteException
 	 *             Failed to connect to Computer.
 	 */
 	public void exit() throws RemoteException;
-
-	/**
-	 * Restart the Computer
-	 * 
-	 * @throws RemoteException
-	 */
-
-	public void restart() throws RemoteException;
-
 }

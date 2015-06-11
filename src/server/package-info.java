@@ -1,8 +1,4 @@
 /**
- * 
- */
-/**
- * @author DQ
- *
+ * Server
  */
 package server;

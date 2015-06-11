@@ -3,6 +3,10 @@ package api;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+/**
+ * Universe Interface is exposed to Server and Space.
+ *
+ */
 public interface Universe extends Remote {
 	/**
 	 * The port used by the RMI registry.

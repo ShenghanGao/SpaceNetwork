@@ -1,8 +1,4 @@
 /**
- * 
- */
-/**
- * @author DQ
- *
+ * Universe Implementation
  */
 package universe;

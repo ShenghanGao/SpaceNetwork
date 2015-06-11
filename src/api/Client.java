@@ -13,10 +13,28 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 
-public abstract class Client<T,A> extends JFrame {
+/**
+ * Client Abstract Class
+ *
+ * @param <T>
+ *            Return Value Type
+ * @param <A>
+ *            Argument Type
+ */
+public abstract class Client<T, A> extends JFrame {
 	private static final long serialVersionUID = -4472984886617837870L;
+	/**
+	 * Task Return Value
+	 */
 	protected T taskReturnValue;
+	/**
+	 * Client Start Time
+	 */
 	private long clientStartTime;
+
+	/**
+	 * Client name
+	 */
 	private String name;
 
 	/**
@@ -44,6 +62,7 @@ public abstract class Client<T,A> extends JFrame {
 
 	/**
 	 * Prepare a Client Task.
+	 * 
 	 * @param <A>
 	 * 
 	 * @return Task

@@ -65,13 +65,11 @@ public abstract class Result implements Serializable {
 	 * Space Task Count
 	 */
 	private Integer spaceCount;
-	
+
 	/**
 	 * Space is busy
 	 */
 	private Boolean spaceIsBusy;
-
-
 
 	/**
 	 * Constructor of Result.
@@ -222,28 +220,38 @@ public abstract class Result implements Serializable {
 	}
 
 	/**
-	 * @return the computerIsBusy
+	 * Get Computer status
+	 * 
+	 * @return the computerIsBusy True if computer is busy. False otherwise.
 	 */
 	public Boolean getComputerIsBusy() {
 		return computerIsBusy;
 	}
 
 	/**
-	 * @param computerIsBusy the computerIsBusy to set
+	 * Set Computer status
+	 * 
+	 * @param computerIsBusy
+	 *            the computerIsBusy to set
 	 */
 	public void setComputerIsBusy(Boolean computerIsBusy) {
 		this.computerIsBusy = computerIsBusy;
 	}
 
 	/**
-	 * @return the spaceIsBusy
+	 * Get Space status
+	 * 
+	 * @return the spaceIsBusy True if the Space is busy. False otherwise
 	 */
 	public Boolean getSpaceIsBusy() {
 		return spaceIsBusy;
 	}
 
 	/**
-	 * @param spaceIsBusy the spaceIsBusy to set
+	 * Set Space status
+	 * 
+	 * @param spaceIsBusy
+	 *            the spaceIsBusy to set
 	 */
 	public void setSpaceIsBusy(Boolean spaceIsBusy) {
 		this.spaceIsBusy = spaceIsBusy;

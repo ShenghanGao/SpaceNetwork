@@ -28,6 +28,12 @@ import api.Task;
 import api.Universe;
 import config.Config;
 
+/**
+ * Universe implementation
+ * 
+ * @author user
+ *
+ */
 public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		Serializable {
 	private static final long serialVersionUID = -5110211125190845128L;
@@ -49,6 +55,9 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 	 */
 	private AtomicInteger ServerID = new AtomicInteger();
 
+	/**
+	 * Check Status Thread
+	 */
 	private CheckStatus checkStatus;
 
 	/**
@@ -88,8 +97,13 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 				"Universe started.");
 	}
 
+	/**
+	 * Check Status Thread
+	 *
+	 */
 	private class CheckStatus extends Thread implements Serializable {
 		private static final long serialVersionUID = 5128515434969596899L;
+
 		@Override
 		public void run() {
 			while (true) {
@@ -178,6 +192,9 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		}
 	}
 
+	/**
+	 * Take Checkpoint
+	 */
 	private void checkPoint() {
 		try {
 			FileOutputStream fout = new FileOutputStream(recoveryFileName);
@@ -362,8 +379,10 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 				"Space {0} is down.", spaceProxy.ID);
 	}
 
+	/**
+	 * Check all Spaces and Servers Status
+	 */
 	private static void check() {
-
 		for (int i : universe.serverProxies.keySet()) {
 			ArrayList<String> status;
 			try {
@@ -400,6 +419,10 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		System.out.println("Total " + totalTask + " tasks.");
 	}
 
+	/**
+	 * Server proxy to manage server
+	 *
+	 */
 	private class ServerProxy implements Serializable {
 		private static final long serialVersionUID = -6762820061270809812L;
 		/**
@@ -491,6 +514,10 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 			return null;
 		}
 
+		/**
+		 * Receive Service.
+		 *
+		 */
 		private class ReceiveService extends Thread implements Serializable {
 			private static final long serialVersionUID = 7243273067156782355L;
 
@@ -504,8 +531,6 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 						System.out.println("Receive Service: Server " + ID
 								+ " is Down!");
 						return;
-						// Potential Problem here. Send Service tries to stop
-						// Receive Service
 					}
 				}
 			}
@@ -559,6 +584,10 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		}
 	}
 
+	/**
+	 * Space Proxy
+	 *
+	 */
 	private class SpaceProxy implements Serializable {
 		private static final long serialVersionUID = 533389829029728826L;
 
@@ -572,8 +601,14 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		 */
 		private final int ID;
 
+		/**
+		 * Task Count
+		 */
 		private int taskCount;
 
+		/**
+		 * Busy Flag
+		 */
 		private volatile boolean isBusy;
 
 		/**
@@ -693,7 +728,6 @@ public class UniverseImpl extends UnicastRemoteObject implements Universe,
 		 */
 		private class SendService extends Thread implements Serializable {
 			private static final long serialVersionUID = 1499104632932748878L;
-
 			@Override
 			public void run() {
 				int busyCount = 0;

@@ -20,7 +20,7 @@ import universe.UniverseImpl;
 public class ValueResult<ValueType> extends Result {
 	private static final long serialVersionUID = -4600193385843282656L;
 
-	/*
+	/**
 	 * Target Successor Task Id of this value result.
 	 */
 	private String targetTaskId;

@@ -370,8 +370,14 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		 */
 		private int taskCount;
 
+		/**
+		 * Busy Flag
+		 */
 		private volatile boolean isBusy;
 
+		/**
+		 * Alive Flag
+		 */
 		private volatile boolean isAlive;
 
 		/**
@@ -614,6 +620,8 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 	}
 
 	/**
+	 * Increase Task Count
+	 * 
 	 * @param taskCount
 	 *            the taskCount to set
 	 */

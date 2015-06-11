@@ -10,6 +10,7 @@ import java.util.List;
  */
 public abstract class Task<T> implements Serializable {
 	private static final long serialVersionUID = -1946800150903851225L;
+	
 	/**
 	 * Task Id, same as its assocaited resutl Id.
 	 */
