@@ -22,6 +22,10 @@ import result.ValueResult;
 import tsp_tasks.TspData;
 import tsp_tasks.TspReadyTask;
 
+/**
+ * TSP Client.
+ *
+ */
 public class ClientTsp extends Client<List<Integer>, double[][]> {
 	private static final long serialVersionUID = 4192126821917742620L;
 	private static final int NUM_PIXALS = 600;
@@ -55,44 +59,32 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 	@SuppressWarnings("unchecked")
 	public static void main(String[] args) throws Exception {
 		System.setSecurityManager(new SecurityManager());
-
 		String serverDomainName = args.length == 0 ? "localhost" : args[0];
-		ClientTsp client = new ClientTsp("ClientTSP");
+		String clientName = args.length == 2 ? args[1] : "TSP";
+		ClientTsp client = new ClientTsp(clientName);
 		client.begin();
 
-//		double[][] CITIES = {
-//	        { 6, 3 },
-//	        { 2, 2 },
-//	        { 5, 8 },
-//	        { 1, 5 },
-//	        { 1, 6 },
-//	        { 2, 7 },
-//	        { 2, 8 },
-//	        { 6, 5 },
-//	        { 1, 3 },
-//	        { 6, 6 }
-//	    };
-		
-		double[][] CITIES = 
-			{
-//				{ 1, 1 },
-				{ 8, 1 },
-//				{ 8, 8 },
-				{ 1, 8 },
-				{ 2, 2 },
-//				{ 7, 2 },
-				{ 7, 7 },
-//				{ 2, 7 },
-				{ 3, 3 },
-//				{ 6, 3 },
-				{ 6, 6 },
-				{ 3, 6 },
-				{ 4, 4 },
-				{ 5, 4 },
-				{ 5, 5 },
-				{ 4, 5 }
-			};
-		
+		// double[][] CITIES = {
+		// { 6, 3 },
+		// { 2, 2 },
+		// { 5, 8 },
+		// { 1, 5 },
+		// { 1, 6 },
+		// { 2, 7 },
+		// { 2, 8 },
+		// { 6, 5 },
+		// { 1, 3 },
+		// { 6, 6 }
+		// };
+
+		double[][] CITIES = {
+				{ 1, 1 },
+				// { 8, 1 },
+				// { 8, 8 },
+				// { 1, 8 },
+				{ 2, 2 }, { 7, 2 }, { 7, 7 }, { 2, 7 }, { 3, 3 }, { 6, 3 },
+				{ 6, 6 }, { 3, 6 }, { 4, 4 }, { 5, 4 }, { 5, 5 }, { 4, 5 } };
+
 		Task<TspData> tspTask = client.makeTask(CITIES);
 		try {
 			Server server = client.findServer(serverDomainName);
@@ -116,7 +108,7 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Server domain name!");
 		} catch (RemoteException e) {
-			System.out.println("Cannot register to the Server!");
+			System.out.println("Cannot regiseter to the Server!");
 		}
 		client.end();
 	}
@@ -141,7 +133,7 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 						+ Math.pow(CITIES[i][1] - CITIES[j][1], 2));
 		return distance;
 	}
-	
+
 	public JLabel getLabel(final Integer[] tour, final double[][] cities) {
 		Logger.getLogger(ClientTsp.class.getCanonicalName()).log(Level.INFO,
 				tourToString(tour));

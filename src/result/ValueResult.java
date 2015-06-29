@@ -20,7 +20,7 @@ import universe.UniverseImpl;
 public class ValueResult<ValueType> extends Result {
 	private static final long serialVersionUID = -4600193385843282656L;
 
-	/*
+	/**
 	 * Target Successor Task Id of this value result.
 	 */
 	private String targetTaskId;
@@ -45,14 +45,14 @@ public class ValueResult<ValueType> extends Result {
 	 * 
 	 * @param resultId
 	 *            Result Id, same as its associated task Id.
-	 * @param layer
-	 *            layer
 	 * @param value
 	 *            Result value.
-	 * @param TargetTaskId
+	 * @param targetTaskId
 	 *            Id of target successor task waiting for the result.
-	 * @param TargetArgIndex
+	 * @param targetArgIndex
 	 *            Argument Index of the result value for target successor task.
+	 * @param coarse
+	 *            Coarse Flag
 	 * @param taskStartTime
 	 *            Task start time.
 	 * @param taskEndTime
@@ -102,13 +102,9 @@ public class ValueResult<ValueType> extends Result {
 	 * @return True if it is the final result. False otherwise.
 	 */
 	public boolean isFinal() {
-		if (targetTaskId.charAt(0) == '$') {
-			return true;
-		} else {
-			return false;
-		}
+		return this.getID().startsWith("INI:");
 	}
-	
+
 	/**
 	 * Get Successor's Orgin Task ID
 	 * 
@@ -153,10 +149,6 @@ public class ValueResult<ValueType> extends Result {
 		SuccessorTask<ValueType> successortask = (SuccessorTask<ValueType>) space
 				.getSuccessorTask(targetTaskId);
 		if (successortask == null) {
-			if (Config.DEBUG) {
-				System.out.println("	Result: Successor " + targetTaskId
-						+ " is not in Space!");
-			}
 			return false;
 		}
 
@@ -175,12 +167,6 @@ public class ValueResult<ValueType> extends Result {
 			} else {
 				// The successor task is moved from Successor Task Queue to
 				// Ready Task Queue.
-				if (Config.DEBUG) {
-					System.out.println("	Result: " + successortask.getID()
-							+ "-" + successortask.getLayer() + "-"
-							+ successortask.isCoarse()
-							+ " is added to Space Ready Task Queue!");
-				}
 				space.successorToReady(successortask);
 			}
 		}
@@ -193,7 +179,7 @@ public class ValueResult<ValueType> extends Result {
 	 * @param universe
 	 *            The universe implemetation in which the result is to be
 	 *            processed.
-	 * @param RunningTaskMap
+	 * @param runningTaskMap
 	 *            The Running Task Map in the Space Proxy, where the associated
 	 *            task is stored.
 	 * 
@@ -214,35 +200,15 @@ public class ValueResult<ValueType> extends Result {
 				.getSuccessorTask(targetTaskId);
 		if (Config.DEBUG) {
 			if (successortask == null) {
-				System.out.println("	Result:Successor " + targetTaskId
-						+ " is not in universe!");
-				System.out.println("targetArgIndex: " + targetArgIndex);
-				System.out.println("orginTaskID :" + orginTaskID);
-				universe.printSuccessors();
+				return;
 			}
 		}
-		System.out.println("	Result:Successor " + targetTaskId
-						+ " is found in universe!");
-
 		// Set the argument in the target successor task at the target index.
 		successortask.setArgAt(targetArgIndex, this.value);
-		if (Config.DEBUG) {
-			System.out.println("	Result: " + successortask.getID() + "-"
-					+ successortask.getLayer() + "-" + successortask.isCoarse()
-					+ " value filled!");
-		}
 		if (successortask.isRunnable()) {
 			// The successor task is moved from Successor Task Queue to
 			// Ready Task Queue.
-			if (Config.DEBUG) {
-				System.out.println("	Result: " + successortask.getID() + "-"
-						+ successortask.getLayer() + "-"
-						+ successortask.isCoarse()
-						+ " is added to Universe Ready Task Queue!");
-			}
 			universe.successorToReady(successortask);
 		}
-
 	}
-
 }

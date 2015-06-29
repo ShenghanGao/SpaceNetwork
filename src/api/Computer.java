@@ -28,15 +28,6 @@ public interface Computer extends Remote {
 	public int getWorkerNum() throws RemoteException;
 
 	/**
-	 * Check if the Computer is busy. Call from Computer Proxy in Space.
-	 * 
-	 * @return True if Computer is busy. False otherwise.
-	 * @throws RemoteException
-	 *             Failed to connect to Computer.
-	 */
-	public boolean isBusy() throws RemoteException;
-
-	/**
 	 * Add a task to Ready Task Queue. Call from Computer Proxy in Space.
 	 * 
 	 * @param task
@@ -56,11 +47,19 @@ public interface Computer extends Remote {
 	public Result getResult() throws RemoteException;
 
 	/**
+	 * Restart the Computer. Call from Computer Proxy in Space.
+	 * 
+	 * @throws RemoteException
+	 *             Failed to connect to computer.
+	 * 
+	 */
+	public void restart() throws RemoteException;
+
+	/**
 	 * Exit
 	 * 
 	 * @throws RemoteException
 	 *             Failed to connect to Computer.
 	 */
 	public void exit() throws RemoteException;
-
 }

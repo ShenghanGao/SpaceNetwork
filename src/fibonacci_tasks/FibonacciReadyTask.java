@@ -94,9 +94,6 @@ public class FibonacciReadyTask extends ReadyTask<Integer> {
 					this.getTargetSuccessorTaskArgIndex());
 			successorTask.setLayer(getLayer() + 1);
 			successorTask.setSpaceRunnable(true);
-			if (this.isCoarse() == true && successorTask.isCoarse() == false) {
-				successorTask.setOrginID(this.getID());
-			}
 			subtasks.add(successorTask);
 
 			// Generate child ready task.

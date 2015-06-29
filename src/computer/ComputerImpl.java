@@ -6,6 +6,7 @@ import java.rmi.NotBoundException;
 import java.rmi.RemoteException;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,17 +37,17 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	/**
 	 * Task ID.
 	 */
-	private final static AtomicInteger TaskID = new AtomicInteger();
+	private static AtomicInteger TaskCount = new AtomicInteger();
 
 	/**
 	 * Ready Task Queue.
 	 */
-	private final BlockingQueue<Task<?>> readyTaskQueue;
+	private BlockingQueue<Task<?>> readyTaskQueue;
 
 	/**
 	 * Result Queue.
 	 */
-	private final BlockingQueue<Result> resultQueue;
+	private BlockingQueue<Result> resultQueue;
 
 	/**
 	 * Number of Workers
@@ -66,10 +67,14 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	/**
 	 * Constructor of Computer Implementation. Generate and stat Task Proxies.
 	 * 
+	 * @param spaceDomainName
+	 *            Space Domain Name
 	 * @throws RemoteException
 	 *             Failed to connect to computer.
 	 * @throws NotBoundException
+	 *             Bad Space Domain Name
 	 * @throws MalformedURLException
+	 *             Bad Space Domain Name
 	 */
 	public ComputerImpl(String spaceDomainName) throws RemoteException,
 			MalformedURLException, NotBoundException {
@@ -96,10 +101,10 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 						this.ID);
 	}
 
+	@SuppressWarnings("unused")
 	public static void main(String[] args) {
 		System.setSecurityManager(new SecurityManager());
 		final String spaceDomainName = args.length == 0 ? "localhost" : args[0];
-
 		ComputerImpl computer;
 		try {
 			computer = new ComputerImpl(spaceDomainName);
@@ -107,19 +112,21 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 			System.out.println("Bad Space domain name!");
 			return;
 		} catch (RemoteException e) {
-			System.out.println("Cannot register to the Space!");
+			System.out.println("Cannot regiseter to the Space!");
 			return;
 		}
-
-		// Main thread waiting for Key Enter to terminate.
-		try {
-			System.in.read();
-		} catch (Throwable ignored) {
-
+		int lastCount = 0;
+		while (true) {
+			try {
+				Thread.sleep(5000);
+			} catch (InterruptedException e) {
+				System.out.println("Interrupted!");
+			}
+			if (lastCount != TaskCount.get()) {
+				lastCount = TaskCount.get();
+				System.out.println("Task Count: " + lastCount);
+			}
 		}
-		Logger.getLogger(ComputerImpl.class.getName()).log(Level.INFO,
-				"Computer " + computer.ID + " exited.");
-		System.exit(-1);
 	}
 
 	/**
@@ -148,21 +155,6 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	}
 
 	/**
-	 * Check if the Computer is busy. Call from Computer Proxy in Space.
-	 * 
-	 * @return True if Computer is busy. False otherwise.
-	 * @throws RemoteException
-	 *             Failed to connect to Computer.
-	 */
-	@Override
-	public boolean isBusy() throws RemoteException {
-		if (readyTaskQueue.size() > Config.ComputerWorkload * this.workerNum) {
-			return true;
-		}
-		return false;
-	}
-
-	/**
 	 * Add a task to Ready Task Queue. Call from Computer Proxy in Space.
 	 * 
 	 * @param task
@@ -175,7 +167,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		try {
 			readyTaskQueue.put(task);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("Interrupted!");
 		}
 	}
 
@@ -199,12 +191,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	 * @return Task
 	 */
 	private Task<?> getReadyTask() {
-		try {
-			return readyTaskQueue.take();
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		return null;
+		return readyTaskQueue.poll();
 	}
 
 	/**
@@ -217,7 +204,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		try {
 			resultQueue.put(result);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			System.out.println("Interrupted!");
 		}
 	}
 
@@ -232,28 +219,23 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		for (int i = 0; i < runningtasks.size(); i++) {
 			try {
 				readyTaskQueue.put(runningtasks.get(i));
-				if (Config.DEBUG) {
-					System.out
-							.println("	Cache: " + runningtasks.get(i).getID());
-				}
 			} catch (InterruptedException e) {
-				e.printStackTrace();
+				System.out.println("Interrupted!");
 			}
 		}
 	}
 
 	/**
-	 * Generate a Task ID.
+	 * Counter tasks
 	 * 
-	 * @return Task ID.
+	 * @return number of tasks.
 	 */
-	private int makeTaskID() {
-		return TaskID.incrementAndGet();
+	private int taskCount() {
+		return TaskCount.incrementAndGet();
 	}
 
 	/**
-	 * Generate a list of Task ID. ClientName:Num:S:Num:U:P:Num:C:W
-	 * F:1:S0:1:U1:P1:1:C1:W1
+	 * Generate a list of Task ID.
 	 * 
 	 * @param oldID
 	 *            Old ID
@@ -263,16 +245,8 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 	 */
 	private String[] makeTaskIDList(String oldID, int num) {
 		String[] IDs = new String[num];
-		/*
-		 * int index = oldID.indexOf(":W"); String prefix = oldID.substring(0,
-		 * index + 2); for (int i = 0; i < num; i++) { String taskid = prefix +
-		 * makeTaskID(); IDs[i] = taskid; } return IDs;
-		 */
-		int index = oldID.indexOf(":C");
-		String prefix = oldID.substring(0, index + 2);
-		for (int i = 0; i < num; i++) {
-			String taskid = prefix + ID + ":W" + makeTaskID();
-			IDs[i] = taskid;
+		for (int i = 0; i < num - 1; i++) {
+			IDs[i] = UUID.randomUUID().toString();
 		}
 		return IDs;
 	}
@@ -287,22 +261,9 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		@Override
 		public void run() {
 			while (true) {
-				// Debug Only
-				/*
-				 * try { Thread.sleep(1000); } catch (InterruptedException e) {
-				 * e.printStackTrace(); }
-				 */
 				Task<?> task = getReadyTask();
-				// Task ID Reset
-				// !:F:1:S0:1:U1:P1:1:C1:1:W1
-				// F:1:S0:1:U1:P0:1:C1:1:W1
-				if (!task.getID().contains(":W")) { // only for the virgin
-					task.setID(task.getID() + ":W" + makeTaskID());
-				}
-				if (Config.DEBUG) {
-					System.out.println("Worker: Task " + task.getID() + "-"
-							+ task.getLayer() + "-" + task.isCoarse()
-							+ " is running!");
+				if (task == null) {
+					continue;
 				}
 				Result result = execute(task);
 				if (!result.isCoarse()) {
@@ -312,33 +273,18 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 								.setRunningTasks(Config.CacheTaskNum);
 					}
 				}
-				addResult(result);
-				if (Config.DEBUG) {
-					System.out.println("Worker: Result " + result.getID() + "-"
-							+ result.isCoarse()
-							+ " is added to Computer ResultQueue!");
+				result.setComputerCount(taskCount());
+				if (readyTaskQueue.size() > workerNum * Config.ComputerWorkload) {
+					result.setComputerIsBusy(true);
+				} else {
+					result.setComputerIsBusy(false);
 				}
+				addResult(result);
 				if (!result.isCoarse()) {
 					if (Config.AmeliorationFlag
 							&& result.getType() == Result.TASKRESULT) {
-						if (Config.DEBUG) {
-							List<?> runningTasks = ((TaskResult<?>) result)
-									.getRunningTasks();
-							System.out.println("	Running task setted "
-									+ ((Task<?>) runningTasks.get(0)).getID()
-									+ "-"
-									+ ((Task<?>) runningTasks.get(0))
-											.getLayer()
-									+ "-"
-									+ ((Task<?>) runningTasks.get(0))
-											.isCoarse() + "-"
-									+ ((Task<?>) runningTasks.get(0)).getArg());
-						}
 						cacheTasks((TaskResult<?>) result);
 					}
-				}
-				if (Config.STATUSOUTPUT) {
-					System.out.println(result.getID());
 				}
 			}
 		}
@@ -346,23 +292,11 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 
 	/**
 	 * Execute the task and generate the result. Assign every subtask with an
-	 * task ID. Root !:F:1:S0:1:U1:P1:1:C1:1:W1 Result !:F:1:S0:1:U1:P1:1:C1:1
-	 * STask F:1:S0:1:U1:P1:1:C1:1:W1
-	 * 
-	 * NormalT F:1:S0:1:U1:P1:1:C1:1:W2 NormalR F:1:S0:1:U1:P1:1:C1:1:W2 STask
-	 * F:1:S0:1:U1:P1:1:C1:1:W1
+	 * task ID.
 	 */
 	private <T> Result execute(Task<T> task) {
 		final Result result = task.execute();
 		final int resultType = result.getType();
-		if (result.getID().charAt(0) == '!') {
-			// Only the result of the root task is able to reach here.
-			int index = result.getID().indexOf(":W");
-			String resultid = result.getID().substring(2, index);
-			result.setID(resultid);
-			String taskid = task.getID().substring(2);
-			task.setID(taskid);
-		}
 		if (resultType == Result.VALUERESULT) {
 			return result;
 		} else {
@@ -373,22 +307,13 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 			String[] taskIDs = makeTaskIDList(task.getID(), subtasks.size());
 			// Assign Successor Task with an Task ID
 			Task<?> successor = subtasks.get(0);
-			successor.setID(taskIDs[0]);
-			if (Config.DEBUG) {
-				System.out.println("	Successor: " + successor.getID() + "-"
-						+ successor.getLayer() + "-" + successor.isCoarse());
-			}
+			successor.setID(task.getID());
 
 			// Assign other Ready Task with Task IDs
 			for (int i = 1; i < subtasks.size(); i++) {
 				Task<?> subtask = subtasks.get(i);
-				subtask.setID(taskIDs[i]);
-				subtask.setTargetID(taskIDs[0]);
-				if (Config.DEBUG) {
-					System.out.println("	Subtask: " + subtask.getID() + "-"
-							+ subtask.getLayer() + "-" + subtask.isCoarse()
-							+ "-" + subtask.getArg().get(0));
-				}
+				subtask.setID(taskIDs[i - 1]);
+				subtask.setTargetID(successor.getID());
 			}
 			return result;
 		}
@@ -402,6 +327,24 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 		Logger.getLogger(this.getClass().getName()).log(Level.INFO,
 				"Computer: exiting.");
 		System.exit(0);
+	}
+
+	@SuppressWarnings("deprecation")
+	@Override
+	public void restart() throws RemoteException {
+		System.out.println("Computer restart");
+		TaskCount = new AtomicInteger();
+		for (Worker w : workers) {
+			w.interrupt();
+			w.stop();
+			w = null;
+		}
+		resultQueue = new LinkedBlockingQueue<>();
+		readyTaskQueue = new LinkedBlockingQueue<>();
+		for (int i = 0; i < workerNum; i++) {
+			workers[i] = new Worker();
+			workers[i].start();
+		}
 	}
 
 }

@@ -2,7 +2,12 @@ package api;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
+/**
+ * Server Interface exposed to Universe and Client
+ *
+ */
 public interface Server extends Remote {
 	/**
 	 * The port used by the RMI registry.
@@ -39,7 +44,7 @@ public interface Server extends Remote {
 	 * 
 	 * @param result
 	 *            Result to be dispatched.
-	 * @throws RemoteExcemption
+	 * @throws RemoteException
 	 *             Cannot connect with Server.
 	 */
 	public void dispatchResult(final Result result) throws RemoteException;
@@ -49,11 +54,14 @@ public interface Server extends Remote {
 	 * 
 	 * @param clientname
 	 *            Client to be registered.
+	 * @param duration
+	 *            Client request runtime
 	 * @return Status of register.
 	 * @throws RemoteException
 	 *             Cannot connect with Server.
 	 */
-	public boolean register(final String clientname, final String duration) throws RemoteException;
+	public boolean register(final String clientname, final String duration)
+			throws RemoteException;
 
 	/**
 	 * Unregister a Client in Server. Call from Client.
@@ -71,15 +79,17 @@ public interface Server extends Remote {
 	 * 
 	 * @param task
 	 *            Task to be submitted.
+	 * @param clientname
+	 *            Client Name
 	 * @return Task ID
 	 * @throws RemoteException
 	 *             Cannot connect with Server
 	 */
-	String submit(final Task<?> task, final String clientname)
+	public String submit(final Task<?> task, final String clientname)
 			throws RemoteException;
 
 	/**
-	 * Get the Result of a Task.
+	 * Get the Result of a Task. Call from Client.
 	 * 
 	 * @param clientname
 	 *            Client Name
@@ -87,5 +97,14 @@ public interface Server extends Remote {
 	 * @throws RemoteException
 	 *             Cannot connect with Server
 	 */
-	Result getResult(final String clientname) throws RemoteException;
+	public Result getResult(final String clientname) throws RemoteException;
+
+	/**
+	 * Get the status of server. Call from Server Proxy in Universe.
+	 * 
+	 * @return status of Server
+	 * @throws RemoteException
+	 *             Cannot connect with Server
+	 */
+	public ArrayList<String> check() throws RemoteException;
 }

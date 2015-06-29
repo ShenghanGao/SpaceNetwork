@@ -4,6 +4,12 @@ import java.util.List;
 
 import api.Task;
 
+/**
+ * Successor Task Abstract Class
+ *
+ * @param <T>
+ *            Argument Type
+ */
 public abstract class SuccessorTask<T> extends Task<T> {
 	private static final long serialVersionUID = 7837344432049161528L;
 	/**
@@ -14,11 +20,6 @@ public abstract class SuccessorTask<T> extends Task<T> {
 	 * Number of missing arguments
 	 */
 	private int missingArgNum;
-
-	/**
-	 * Origin Task ID
-	 */
-	private String originID;
 
 	/**
 	 * Constructor of successor task. Call from inside.
@@ -36,7 +37,6 @@ public abstract class SuccessorTask<T> extends Task<T> {
 			int targetSuccessorTaskArgIndex) {
 		super(arg);
 		this.missingArgNum = argNum;
-		this.originID = null;
 		this.setTargetID(targetSuccessorTaskId);
 		this.setTargetSuccessorTaskArgIndex(targetSuccessorTaskArgIndex);
 	}
@@ -86,25 +86,6 @@ public abstract class SuccessorTask<T> extends Task<T> {
 	 */
 	public void setTargetSuccessorTaskArgIndex(int targetSuccessorTaskArgIndex) {
 		this.targetSuccessorTaskArgIndex = targetSuccessorTaskArgIndex;
-	}
-
-	/**
-	 * Get Origin Task ID
-	 * 
-	 * @return Origin Task ID
-	 */
-	public String getOriginID() {
-		return originID;
-	}
-
-	/**
-	 * Set Origin Task ID
-	 * 
-	 * @param originID
-	 *            Origin Task ID
-	 */
-	public void setOrginID(String originID) {
-		this.originID = originID;
 	}
 
 }

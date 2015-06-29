@@ -2,6 +2,7 @@ package api;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 
 /**
  * 
@@ -18,7 +19,7 @@ public interface Space extends Remote {
 	 * The service name associated with this Remote interface.
 	 */
 	public static String SERVICE_NAME = "Space";
-	
+
 	/**
 	 * Set an ID to the Space. Call from Universe.
 	 * 
@@ -57,4 +58,22 @@ public interface Space extends Remote {
 	 *             Cannot connect with Space.
 	 */
 	public void register(final Computer computer) throws RemoteException;
+
+	/**
+	 * Restart Space. Call from Universe.
+	 * 
+	 * @throws RemoteException
+	 *             Cannot connect with Space.
+	 */
+	public void restart() throws RemoteException;
+
+	/**
+	 * Check status of Space. Call from Universe.
+	 * 
+	 * @return Status of Space
+	 * @throws RemoteException
+	 *             Cannot connect with Space.
+	 */
+	public ArrayList<String> check() throws RemoteException;
+
 }

@@ -53,7 +53,7 @@ public class ClientFibonacci extends Client<Integer, Integer> {
 		if (args.length == 1) {
 			serverDomainName = args[0];
 			clientName = "Fibonacci";
-			N = 10;
+			N = 18;
 		} else if(args.length == 3) {
 			serverDomainName = args[0];
 			clientName = args[1];
@@ -61,7 +61,7 @@ public class ClientFibonacci extends Client<Integer, Integer> {
 		} else {
 			serverDomainName = "localhost";
 			clientName = "Fibonacci";
-			N = 19;
+			N = 25;
 		}
 		// Change the Client Interface to accept server name, client name, and N. 
 		ClientFibonacci client = new ClientFibonacci(clientName);
@@ -79,7 +79,7 @@ public class ClientFibonacci extends Client<Integer, Integer> {
 		try {
 			if (server.register(client.getName(), null)) {
 				
-				for (int i = 0; i < 1; i++) {
+				for (int i = 0; i <1; i++) {
 					Task<Integer> fibTask = client.makeTask(N);
 					String taskID = server.submit(fibTask, client.getName());
 					Logger.getLogger(Client.class.getCanonicalName()).log(

@@ -19,7 +19,7 @@ public abstract class Config {
 	/**
 	 * Flag of Computer using mulitithread
 	 */
-	public final static boolean ComputerMultithreadFlag = false;
+	public final static boolean ComputerMultithreadFlag = true;
 
 	/**
 	 * Flag of Status Output
@@ -47,8 +47,13 @@ public abstract class Config {
 	public static final int CacheTaskNum = 1;
 
 	/**
-	 * Computer Workload. Threashold of Ready Task Queue size.
+	 * Computer Workload Threashold
 	 */
 	public static final int ComputerWorkload = 4;
+	
+	/**
+	 * Space Workload Threashold 
+	 */
+	public static final int SpaceWorkload = 10;
 
 }

@@ -52,10 +52,34 @@ public abstract class Result implements Serializable {
 	private Boolean coarse;
 
 	/**
+	 * Computer Task Count
+	 */
+	private Integer ComputerCount;
+
+	/**
+	 * Computer is busy
+	 */
+	private Boolean computerIsBusy;
+
+	/**
+	 * Space Task Count
+	 */
+	private Integer spaceCount;
+
+	/**
+	 * Space is busy
+	 */
+	private Boolean spaceIsBusy;
+
+	/**
 	 * Constructor of Result.
 	 * 
 	 * @param resultId
-	 *            Result Id.
+	 *            Result Id
+	 * @param resultType
+	 *            Result Type.
+	 * @param coarse
+	 *            Coarse Flag
 	 * @param taskStartTime
 	 *            Task start time.
 	 * @param taskEndTime
@@ -123,7 +147,7 @@ public abstract class Result implements Serializable {
 	 * @param space
 	 *            The Space implementation in which the result is to be
 	 *            processed.
-	 * @param ComputerProxyRunningTaskMap
+	 * @param runningTaskMap
 	 *            The Running Task Map in the Computer Proxy, where the
 	 *            associated task is stored.
 	 * @param resultQueue
@@ -144,8 +168,6 @@ public abstract class Result implements Serializable {
 	 * @param runningTaskMap
 	 *            The running Task Map in the Space Proxy, where the associated
 	 *            task is stored.
-	 * @return The status of processing. True if processed successfully, false
-	 *         otherwise.
 	 */
 	public abstract void process(final UniverseImpl universe,
 			final Map<String, Task<?>> runningTaskMap);
@@ -159,6 +181,82 @@ public abstract class Result implements Serializable {
 		stringBuilder.append(getClass());
 		stringBuilder.append("\n\tExecution time:\t").append(getTaskRuntime());
 		return stringBuilder.toString();
+	}
+
+	/**
+	 * Get Computer Count
+	 * 
+	 * @return the computerCount
+	 */
+	public Integer getComputerCount() {
+		return ComputerCount;
+	}
+
+	/**
+	 * Set computer count
+	 * 
+	 * @param computerCount
+	 *            the computerCount to set
+	 */
+	public void setComputerCount(Integer computerCount) {
+		ComputerCount = computerCount;
+	}
+
+	/**
+	 * Get Space Task Count
+	 * 
+	 * @return the spaceCount
+	 */
+	public Integer getSpaceCount() {
+		return spaceCount;
+	}
+
+	/**
+	 * Set Space Task Count
+	 * 
+	 * @param spaceCount
+	 *            the spaceCount to set
+	 */
+	public void setSpaceCount(Integer spaceCount) {
+		this.spaceCount = spaceCount;
+	}
+
+	/**
+	 * Get Computer status
+	 * 
+	 * @return the computerIsBusy True if computer is busy. False otherwise.
+	 */
+	public Boolean getComputerIsBusy() {
+		return computerIsBusy;
+	}
+
+	/**
+	 * Set Computer status
+	 * 
+	 * @param computerIsBusy
+	 *            the computerIsBusy to set
+	 */
+	public void setComputerIsBusy(Boolean computerIsBusy) {
+		this.computerIsBusy = computerIsBusy;
+	}
+
+	/**
+	 * Get Space status
+	 * 
+	 * @return the spaceIsBusy True if the Space is busy. False otherwise
+	 */
+	public Boolean getSpaceIsBusy() {
+		return spaceIsBusy;
+	}
+
+	/**
+	 * Set Space status
+	 * 
+	 * @param spaceIsBusy
+	 *            the spaceIsBusy to set
+	 */
+	public void setSpaceIsBusy(Boolean spaceIsBusy) {
+		this.spaceIsBusy = spaceIsBusy;
 	}
 
 }

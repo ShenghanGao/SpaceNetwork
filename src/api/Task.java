@@ -10,6 +10,7 @@ import java.util.List;
  */
 public abstract class Task<T> implements Serializable {
 	private static final long serialVersionUID = -1946800150903851225L;
+
 	/**
 	 * Task Id, same as its assocaited resutl Id.
 	 */
@@ -38,6 +39,8 @@ public abstract class Task<T> implements Serializable {
 	/**
 	 * Constructor of Task
 	 * 
+	 * @param arg
+	 *            Arguments
 	 */
 	public Task(List<T> arg) {
 		this.arg = arg;
@@ -57,9 +60,10 @@ public abstract class Task<T> implements Serializable {
 	}
 
 	/**
-	 * Set the argument list.
+	 * Set Argument list
 	 * 
-	 * @return the arg
+	 * @param arg
+	 *            List of Arguments
 	 */
 	public void setArg(List<T> arg) {
 		this.arg = arg;

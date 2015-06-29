@@ -7,7 +7,6 @@ import java.util.concurrent.BlockingQueue;
 
 import api.Result;
 import api.Task;
-import config.Config;
 import space.SpaceImpl;
 import universe.UniverseImpl;
 
@@ -38,9 +37,8 @@ public class TaskResult<T> extends Result {
 	 *            Subtasks to be stored in Space. First task is a successor task
 	 *            to be stored in Successor Task Queue, following by child ready
 	 *            tasks to be stored in Ready Task Queue.
-	 * @param runningTasks
-	 *            The tasks to be cached in computer's local Ready Task Queue
-	 *            and in Computer Proxy's Runnning Task Map.
+	 * @param coarse
+	 *            Coarse flag
 	 * @param taskStartTime
 	 *            Task start time.
 	 * @param taskEndTime
@@ -103,7 +101,7 @@ public class TaskResult<T> extends Result {
 	 * @param space
 	 *            The Space implemetation in which the result is to be
 	 *            processed.
-	 * @param RunningTaskMap
+	 * @param runningTaskMap
 	 *            The Running Task Map in the Computer Proxy, where the
 	 *            associated task is stored.
 	 * @param intermediateResultQueue
@@ -114,35 +112,13 @@ public class TaskResult<T> extends Result {
 	public boolean process(final SpaceImpl space,
 			final Map<String, Task<?>> runningTaskMap,
 			final BlockingQueue<Result> intermediateResultQueue) {
-		if (Config.DEBUG) {
-			if (runningTasks.size() == 0) {
-				System.out.println("	Result: RuningTask is empty!");
-			}
-		}
 		for (int i = 0; i < runningTasks.size(); i++) {
-			if (Config.DEBUG) {
-				System.out.println("	Result: RunningTask "
-						+ runningTasks.get(i).getID() + "-"
-						+ runningTasks.get(0).getLayer() + "-"
-						+ runningTasks.get(i).isCoarse());
-			}
 			runningTaskMap
 					.put(runningTasks.get(i).getID(), runningTasks.get(i));
-		}
-		if (Config.DEBUG) {
-			System.out.println("	Result: Successor " + subTasks.get(0).getID()
-					+ "-" + subTasks.get(0).getLayer() + "-"
-					+ subTasks.get(0).isCoarse());
 		}
 		space.addSuccessorTask(subTasks.get(0));
 		for (int i = 1; i < subTasks.size(); i++) {
 			space.addReadyTask(subTasks.get(i));
-			if (Config.DEBUG) {
-				System.out.println("	Result: Subtask "
-						+ subTasks.get(i).getID() + "-"
-						+ subTasks.get(i).getLayer() + "-"
-						+ subTasks.get(i).isCoarse());
-			}
 		}
 		return true;
 	}
@@ -155,26 +131,13 @@ public class TaskResult<T> extends Result {
 	 *            Universe
 	 * @param runningTaskMap
 	 *            The running Task Map in the Space Proxy.
-	 * @return The status of processing. True if processed successfully, false
-	 *         otherwise.
 	 */
 	@Override
 	public void process(UniverseImpl universe,
 			Map<String, Task<?>> runningTaskMap) {
-		if (Config.DEBUG) {
-			System.out.println("	Result: Successor " + subTasks.get(0).getID()
-					+ "-" + subTasks.get(0).getLayer() + "-"
-					+ subTasks.get(0).isCoarse());
-		}
 		universe.addSuccessorTask(subTasks.get(0));
 		for (int i = 1; i < subTasks.size(); i++) {
 			universe.addReadyTask(subTasks.get(i));
-			if (Config.DEBUG) {
-				System.out.println("	Result: Subtask "
-						+ subTasks.get(i).getID() + "-"
-						+ subTasks.get(0).getLayer() +"-"
-						+ subTasks.get(i).isCoarse());
-			}
 		}
 
 	}
