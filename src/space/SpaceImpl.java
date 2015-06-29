@@ -108,7 +108,7 @@ public class SpaceImpl extends UnicastRemoteObject implements Space {
 		try {
 			space = new SpaceImpl(universeDomainName);
 		} catch (RemoteException e) {
-			System.out.println("Cannot regiseter to the Universe!");
+			System.out.println("Cannot register to the Universe!");
 			return;
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Universe domain name!");

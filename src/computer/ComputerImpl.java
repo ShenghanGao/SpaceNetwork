@@ -112,7 +112,7 @@ public class ComputerImpl extends UnicastRemoteObject implements Computer {
 			System.out.println("Bad Space domain name!");
 			return;
 		} catch (RemoteException e) {
-			System.out.println("Cannot regiseter to the Space!");
+			System.out.println("Cannot register to the Space!");
 			return;
 		}
 		int lastCount = 0;

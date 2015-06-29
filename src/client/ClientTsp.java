@@ -108,7 +108,7 @@ public class ClientTsp extends Client<List<Integer>, double[][]> {
 		} catch (MalformedURLException | NotBoundException e) {
 			System.out.println("Bad Server domain name!");
 		} catch (RemoteException e) {
-			System.out.println("Cannot regiseter to the Server!");
+			System.out.println("Cannot register to the Server!");
 		}
 		client.end();
 	}
